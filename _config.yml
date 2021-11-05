@@ -7,9 +7,10 @@ title: 蓝天の博客
 subtitle: zhanghaoyu
 description: 日积月累,积少成多
 keywords: 
-author: 张浩宇
+author: Zhang Hao Hu
 language: zh-Hans
 timezone: Asia/Shanghai
+
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
@@ -112,9 +113,9 @@ deploy:
   branch: master
 
 passage_end_tag:
-  enabled: true
+  enabled: false
 live2d:
-  enable: true
+  enable: false
   scriptFrom: local
   pluginRootPath: live2dw/
   pluginJsPath: lib/
