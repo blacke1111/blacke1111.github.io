@@ -87,8 +87,40 @@ remove方法：
 * 鉴于Java中数组用来存储数据的局限性，我们通常使用List替代数组
 * List集合类中元素有序、且可重复，集合中的每个元素都有其对应的顺序索引。
 * List容器中的元素都对应.一个整数型的序号记载其在容器中的位置，可以根据序号存取容器中的元素。
-* JDKAPI中List接口的实现类常用的有:**ArrayList**、**LinkedList** 和**Vector**.
-
-**面试题:ArrayList、 LinkedList、 Vector三者的异同?**
+* JDKAPI中List接口的实现类常用的有:**ArrayList**、**LinkedList** 和**Vector**.  
 
 
+
+**面试题:ArrayList、 LinkedList、 Vector三者的异同?**  
+同:三个类都是实现了List接口，存储数据的特点相同:存储有序的、可重复的数据
+
+> 不同： 
+>>**ArrayList**: 作为List接口的主要实现类，线程不安全的，效率高;底层使用0bject[]eLementData存储  
+>>**LinkedList**: 对于频繁的插入、删除操作，使用此类效率比ArrayList高;底层使用双向链表存储  
+>>**Vector**:作为List接口的古老实现类；线程安全的，效率低。底层使用0bject[]eLementData存储  
+
+
+### 1.ArrayList
+ArrayList的源码分析:
+**jdk 7**情况下  
+ArrayList list = new ArrayList();//底层创建了长度是10的object[]数组   eLementDatalist.add(123); //eLementData[size+1] = new Integer(123);  
+...  
+list.add(11);//如果此次的添加导致底层elementData数组容量不够，则扩容。 
+默认情况下，扩容为原来的容量的1.5倍，同时需要将原有数组中的数据复制到新的数组中。|
+![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211113193854.png)
+
+**jdk 8**中ArrayList的变化:  
+ArrayList list = new ArrayList();//底层object[] elementData初始化为{}.并没有创建数组长度为10的数组  
+list.add(123);//第一次调用add()时，底层才创建了长度10的数组，并将数据123添加到eLement数组中。  
+...   
+后续的添加和扩容操作与jdk 7无异。 
+小结: jdk7中的ArrayList的对象创建类似于单例的饿汉式，而jdk8中的ArrayList的对象
+创建类似于懒汉式。  
+
+
+### 1.LinkedList
+jdk8：
+LinkedList list = new LinkedList();内部声明了Node类型的first和Last属性，默认值为null  
+List.add ( 123);//将123封装到Node中，创建了Node对象。
+其中，Node定义为:
+![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211113200814.png)
