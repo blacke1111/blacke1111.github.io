@@ -238,3 +238,28 @@ List.add ( 123);//将123封装到Node中，创建了Node对象。
 
 ## Map接口
 ![](https://i.loli.net/2021/11/14/Mba1OKrq7Zcdes4.png)
+
+**Map**:双列数据，存储key-value对的数据---类似于高中的函数: y = f(x)  
+**HashMap**:作为Map的主要实现类;线程不安全的，效率高;存储null的key 和vaLue  
+**LinkedHashMap**:保证在遍历map元素时，可以按照添加的顺序实现遍历。  
+原因:在原有的HashMap底层结构基础上，添加了一对指针，指向前一个和后一个元素,**对于频繁的遍历效率高于HashMap**  
+**TreeMap**:保证按照添加的key-value对进行排序，实现排序遍历。底层实现红黑树  
+**HashtobLe**;作为古老的实现类;线程安全的，效率低:不能存储null的key和value  
+**Properties**：常用来处理配置文件。key和value都是String类型
+
+**二、Map结构的理解:**  
+Map中的key:无序的、不可重复的，使用set存储所有的key  
+Map 中的value:无序的、可重复的，使用Collection存储所有的value  
+一个键值对: key-value构成了一个Entry对象。  
+Map中的entry:无序的、不可重复的，使用set存储所有的entry  
+
+
+## HashMap（具体细节建议直接看源码）：
+jdk7底层结构只有:数组+链表。jdk8中底层结构:数组+链表+红黑树。  
+当数组的某一个索引位置上的元素以链表形式存在的数据个数>8且当前数组的长度>64时，此时此索引位置上的所有数据改为使用红黑树存储。|
+
+## LinkedHashMap
+主要改变是：
+![](https://i.loli.net/2021/11/15/w8ZQP9aBh5nHvs6.png)
+
+可以按照添加的顺序输出。
