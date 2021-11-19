@@ -1,6 +1,7 @@
 ---
 title: 'LC:二叉树中的最大路径和'
 date: 2021-11-16 23:45:00
+tags: 动态规划
 categories: 算法
 ---
 [力扣LC:二叉树中的最大路径和](https://leetcode-cn.com/leetbook/read/top-interview-questions/x2hnpi/):
