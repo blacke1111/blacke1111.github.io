@@ -4,13 +4,12 @@
 
 # Site
 title: 蓝天の博客
-subtitle: zhanghaoyu
+subtitle: 
 description: 日积月累,积少成多
 keywords: 
 author: Zhang Hao Hu
 language: zh-Hans
 timezone: Asia/Shanghai
-
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'

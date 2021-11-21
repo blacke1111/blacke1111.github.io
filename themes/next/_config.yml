@@ -168,6 +168,8 @@ links_layout: block
 # Sidebar Avatar
 # in theme directory(source/images): /images/avatar.gif
 # in site  directory(source/uploads): /uploads/avatar.gif
+author: 张浩宇
+description: 日积月累,积少成多
 avatar: /images/head.png
 
 # Table Of Contents in the Sidebar
@@ -214,7 +216,7 @@ sidebar:
   scrollpercent: true
 
   # Enable sidebar on narrow view (only for Muse | Mist).
-  onmobile: false
+  onmobile: true
 
 
 # ---------------------------------------------------------------
