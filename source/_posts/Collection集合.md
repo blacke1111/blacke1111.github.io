@@ -5,18 +5,18 @@ tags: Java集合
 categories: java基础
 ---
 
-## 1．集合与数组存储数据概述:
+## 集合与数组存储数据概述:
 
 集合、数组都是对多个数据进行存储操作的结构，简称ava容器。  
 说明:此时的存储，主要指的是内存层面的存储，不涉及到持久化的存储（.txt,.jpg,.avi，数据库中）
 
-## 2．数组存储的特点:
+## 数组存储的特点:
 一旦初始化以后，其长度就确定了。  
 数组一旦定义好，其元素的类型也就确定了。我们也就只能操作指定类型的数据了。    
 *&emsp;&emsp;比如: Strina[]arr;int[]arr1;obiect[]arr2;
 
 
-## 3．数组存储的弊端:
+##  数组存储的弊端:
 *  —旦初始化以后，其长度就不可修改。
 *  数组中提供的方法非常限，对于添加、删除、插入数据等操作，非常不便，同时效率不高。
 *  获取数组中实际元素的个数的需求,数组没有现成的属性或方法可用
@@ -102,7 +102,7 @@ remove方法：
 >>**Vector**:作为List接口的古老实现类；线程安全的，效率低。底层使用0bject[]eLementData存储  
 
 
-### 1.ArrayList
+### ArrayList
 ArrayList的源码分析:
 **jdk 7**情况下  
 ArrayList list = new ArrayList();//底层创建了长度是10的object[]数组   eLementDatalist.add(123); //eLementData[size+1] = new Integer(123);  
@@ -122,7 +122,7 @@ list.add(123);//第一次调用add()时，底层才创建了长度10的数组，
 创建类似于懒汉式。  
 
 
-### 2.LinkedList
+### LinkedList
 jdk8：
 LinkedList list = new LinkedList();内部声明了Node类型的first和Last属性，默认值为null  
 List.add ( 123);//将123封装到Node中，创建了Node对象。
@@ -140,7 +140,7 @@ List.add ( 123);//将123封装到Node中，创建了Node对象。
 >>TreeSet：添加的数据来自同一个类的实例，**红黑树**，可以按照指定添加对象的属性进行排序。 
 
 
-### 1.HashSet
+### HashSet
 1：无序 ： 不等于随机性，存储的数据在底层数组中并非按照数组索引的顺序添加，而是根据数据的哈希值决定的。
 
 2：不可重复性：保证添加的元素按照equals()判断时，不能返回true.即:相同的元素只能添加一个
@@ -162,14 +162,14 @@ List.add ( 123);//将123封装到Node中，创建了Node对象。
 **要求2**:重写的hashCode()和equals()尽可能保持一致性:相等的对象必须具有相等的散列码  
 **重写两个方法的小技巧**:对象中用作equals()方法比较的Field，都应该用来计算hashCode值。
 
-### 2.LinkedHashSet
+### LinkedHashSet
 继承于HashSet  
 **为什么输出时可以按照添加的顺序输出：**
 ![](https://i.loli.net/2021/11/14/gmUEWPaV5v3RuKH.png)
 
 对于频繁的遍历操作，LinkedHashset效率高于HashSet.
 
-### 2.TreeSet（红黑树）
+### TreeSet（红黑树）
 1.向Treeset中添加的数据，要求是相同类的对象
 
 2.两种排序方式:自然排序（实现Comparable接口）和定制排序
@@ -254,11 +254,11 @@ Map 中的value:无序的、可重复的，使用Collection存储所有的value
 Map中的entry:无序的、不可重复的，使用set存储所有的entry  
 
 
-## HashMap（具体细节建议直接看源码）：
+### HashMap（具体细节建议直接看源码）：
 jdk7底层结构只有:数组+链表。jdk8中底层结构:数组+链表+红黑树。  
 当数组的某一个索引位置上的元素以链表形式存在的数据个数>8且当前数组的长度>64时，此时此索引位置上的所有数据改为使用红黑树存储。|
 
-## LinkedHashMap
+### LinkedHashMap
 主要改变是：
 ![](https://i.loli.net/2021/11/15/w8ZQP9aBh5nHvs6.png)
 
