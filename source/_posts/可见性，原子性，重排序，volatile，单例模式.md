@@ -244,7 +244,7 @@ volatile 的底层实现原理是内存屏障，Memory Barrier（Memory Fence）
 * 对 volatile 变量的写指令后会加入写屏障
 * 对 volatile 变量的读指令前会加入读屏障
 
-	##  1.如何保证可见性 
+##  1.如何保证可见性 
 写屏障（sfence）保证在该屏障之前的，对共享变量的改动，都同步到主存当中
 ```java
 
