@@ -236,7 +236,7 @@ void execute(Runnable command);
  long timeout, TimeUnit unit)
  throws InterruptedException, ExecutionException, TimeoutException;
 
-小技巧：idea提取方法 shift+alt+m
+小技巧：idea提取代码为方法 ctrl+alt+m
 ```
 
 
@@ -317,7 +317,7 @@ boolean isTerminated();
 boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException;
 ```
 
-## **任务调度线程池**
+## **任务调度线程池(ScheduledExecutorService)**
 
 在『任务调度线程池』功能加入之前，可以使用 java.util.Timer 来实现定时功能，Timer 的优点在于简单易用，但由于所有任务都是由同一个线程来调度，因此所有任务都是串行执行的，同一时间只能有一个任务在执行，前一个任务的延迟或异常都将会影响到之后的任务。
 
@@ -356,22 +356,278 @@ public static void main(String[] args) {
 
 使用 ScheduledExecutorService 改写：
 
+ScheduledExecutorService能指定任务在几秒后执行。
+
 ```java
-ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);
-// 添加两个任务，希望它们都在 1s 后执行
-executor.schedule(() -> {
- System.out.println("任务1，执行时间：" + new Date());
- try { Thread.sleep(2000); } catch (InterruptedException e) { }
-}, 1000, TimeUnit.MILLISECONDS);
-executor.schedule(() -> {
- System.out.println("任务2，执行时间：" + new Date());
-}, 1000, TimeUnit.MILLISECONDS);
+@Slf4j(topic = "c.TestTimer")
+public class TestTimer {
+    public static void main(String[] args) {
+        ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
+        log.debug("main....");
+        service.schedule(()->{
+            log.debug("1");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        },1, TimeUnit.SECONDS);
+        service.schedule(()->{
+            log.debug("2");
+        },1, TimeUnit.SECONDS);
+    }
+
 ```
 
 输出:
 
 ```java
-任务1，执行时间：Thu Jan 03 12:45:17 CST 2019 
-任务2，执行时间：Thu Jan 03 12:45:17 CST 2019
+13:53:17.836 c.TestTimer [main] - main....
+13:53:18.877 c.TestTimer [pool-1-thread-1] - 1
+13:53:19.877 c.TestTimer [pool-1-thread-1] - 2
+```
+
+**可以看到第一个任务不会影响第二个任务的执行。**
+
+
+
+### scheduleAtFixedRate
+
+**每隔一段时期执行一次这个任务**
+
+```java
+ private static void method1() {
+        ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
+        log.debug("satrt....");
+        service.scheduleAtFixedRate(()->{
+            log.debug("1");
+        },2,1,TimeUnit.SECONDS);
+    }
+```
+
+结果：
+
+```java
+14:01:17.664 c.TestTimer [main] - satrt....
+14:01:19.702 c.TestTimer [pool-1-thread-1] - 1
+14:01:20.702 c.TestTimer [pool-1-thread-1] - 1
+14:01:21.702 c.TestTimer [pool-1-thread-1] - 1
+14:01:22.702 c.TestTimer [pool-1-thread-1] - 1
+14:01:23.701 c.TestTimer [pool-1-thread-1] - 1
+14:01:24.701 c.TestTimer [pool-1-thread-1] - 1
+14:01:25.701 c.TestTimer [pool-1-thread-1] - 1
+14:01:26.702 c.TestTimer [pool-1-thread-1] - 1
+14:01:27.702 c.TestTimer [pool-1-thread-1] - 1
+14:01:28.702 c.TestTimer [pool-1-thread-1] - 1
+···············································
+```
+
+
+
+### scheduleWithFixedDelay
+
+```java
+ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
+log.debug("satrt....");
+service.scheduleWithFixedDelay(()->{
+    log.debug("1");
+    try {
+        Thread.sleep(2000);
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+},1,1,TimeUnit.SECONDS);
+```
+
+输出分析：一开始，延时 1s，scheduleWithFixedDelay 的间隔是 上一个任务结束 <-> 延时 <-> 下一个任务开始 所以间隔都是 3s
+
+输出：
+
+```java
+18:46:00.740 c.TestTimer [main] - satrt....
+18:46:01.777 c.TestTimer [pool-1-thread-1] - 1
+18:46:04.777 c.TestTimer [pool-1-thread-1] - 1
+18:46:07.779 c.TestTimer [pool-1-thread-1] - 1
+18:46:10.782 c.TestTimer [pool-1-thread-1] - 1
+···············································
+```
+
+> **评价** 整个线程池表现为：线程数固定，任务数多于线程数时，会放入无界队列排队。任务执行完毕，这些线
+>
+> 程也不会被释放。用来执行延迟或反复执行的任务
+
+## **正确处理执行任务异常**
+
+### 方法1：主动捉异常
+
+```java
+ExecutorService pool = Executors.newFixedThreadPool(1);
+pool.submit(() -> {
+ try {
+ log.debug("task1");
+ int i = 1 / 0;
+ } catch (Exception e) {
+ log.error("error:", e);
+ }
+});
+```
+
+输出
+
+```java
+21:59:04.558 c.TestTimer [pool-1-thread-1] - task1 
+21:59:04.562 c.TestTimer [pool-1-thread-1] - error: 
+java.lang.ArithmeticException: / by zero 
+ at cn.itcast.n8.TestTimer.lambda$main$0(TestTimer.java:28) 
+ at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) 
+ at java.util.concurrent.FutureTask.run(FutureTask.java:266) 
+ at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) 
+ at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) 
+ at java.lang.Thread.run(Thread.java:748)
+```
+
+### 方法2：使用 Future
+
+```java
+ExecutorService pool = Executors.newFixedThreadPool(1);
+Future<Boolean> f = pool.submit(() -> {
+ log.debug("task1");
+ int i = 1 / 0;
+ return true;
+});
+log.debug("result:{}", f.get());
+```
+
+输出：
+
+```java
+21:54:58.208 c.TestTimer [pool-1-thread-1] - task1 
+Exception in thread "main" java.util.concurrent.ExecutionException: 
+java.lang.ArithmeticException: / by zero 
+ at java.util.concurrent.FutureTask.report(FutureTask.java:122) 
+ at java.util.concurrent.FutureTask.get(FutureTask.java:192) 
+ at cn.itcast.n8.TestTimer.main(TestTimer.java:31) 
+Caused by: java.lang.ArithmeticException: / by zero 
+ at cn.itcast.n8.TestTimer.lambda$main$0(TestTimer.java:28) 
+ at java.util.concurrent.FutureTask.run(FutureTask.java:266) 
+ at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) 
+ at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) 
+ at java.lang.Thread.run(Thread.java:748)
+```
+
+## 线程池应用：
+
+定时每周4 18.0.0工作一次
+
+```java
+@Slf4j(topic = "c.TestSchedule")
+public class TestSchedule {
+    public static void main(String[] args) {
+
+        //获取当前时间
+        LocalDateTime now=LocalDateTime.now();
+
+
+        //获取本周周四时间
+        LocalDateTime time = now.withHour(18).withMinute(0).withSecond(0).withNano(0).with(DayOfWeek.THURSDAY);
+        //如果当前时间超过了周四推迟下一周执行
+        if (now.compareTo(time)>0){
+            time=time.plusWeeks(1);
+        }
+        long deplay = Duration.between(now, time).toMillis();
+        System.out.println(deplay +"--"+1000*60*60*24*7);
+
+        long period=1000*60*60*24*7;
+        ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
+
+        service.scheduleWithFixedDelay(()->{
+            log.debug("1");
+        },deplay,period, TimeUnit.MILLISECONDS);
+    }
+}
+```
+
+##  **Fork/Join**
+
+
+
+###  **概念**
+
+Fork/Join 是 JDK 1.7 加入的新的线程池实现，它体现的是一种分治思想，适用于能够进行任务拆分的 cpu 密集型
+
+运算
+
+所谓的任务拆分，是将一个大任务拆分为算法上相同的小任务，直至不能拆分可以直接求解。跟递归相关的一些计
+
+算，如归并排序、斐波那契数列、都可以用分治思想进行求解
+
+Fork/Join 在分治的基础上加入了多线程，可以把每个任务的分解和合并交给不同的线程来完成，进一步提升了运
+
+算效率
+
+Fork/Join 默认会创建与 cpu 核心数大小相同的线程池
+
+ **使用**
+
+提交给 Fork/Join 线程池的任务需要继承 RecursiveTask（有返回值）或 RecursiveAction（没有返回值），例如下
+
+面定义了一个对 1~n 之间的整数求和的任务
+
+
+
+```java
+@Slf4j(topic = "c.AddTask")
+class AddTask1 extends RecursiveTask<Integer> {
+ int n;
+ public AddTask1(int n) {
+ this.n = n;
+ }
+ @Override
+ public String toString() {
+ return "{" + n + '}';
+ }
+ @Override
+ protected Integer compute() {
+ // 如果 n 已经为 1，可以求得结果了
+ if (n == 1) {
+ log.debug("join() {}", n);
+ return n;
+ }
+ 
+ // 将任务进行拆分(fork)
+ AddTask1 t1 = new AddTask1(n - 1);
+ t1.fork();
+ log.debug("fork() {} + {}", n, t1);
+ 
+ // 合并(join)结果
+ int result = n + t1.join();
+ log.debug("join() {} + {} = {}", n, t1, result);
+ return result;
+ }
+}
+```
+
+然后提交给 ForkJoinPool 来执行
+
+```java
+public static void main(String[] args) {
+ ForkJoinPool pool = new ForkJoinPool(4);
+ System.out.println(pool.invoke(new AddTask1(5)));
+}
+```
+
+结果
+
+```java
+[ForkJoinPool-1-worker-0] - fork() 2 + {1} 
+[ForkJoinPool-1-worker-1] - fork() 5 + {4} 
+[ForkJoinPool-1-worker-0] - join() 1 
+[ForkJoinPool-1-worker-0] - join() 2 + {1} = 3 
+[ForkJoinPool-1-worker-2] - fork() 4 + {3} 
+[ForkJoinPool-1-worker-3] - fork() 3 + {2} 
+[ForkJoinPool-1-worker-3] - join() 3 + {2} = 6 
+[ForkJoinPool-1-worker-2] - join() 4 + {3} = 10 
+[ForkJoinPool-1-worker-1] - join() 5 + {4} = 15 
+15
 ```
 

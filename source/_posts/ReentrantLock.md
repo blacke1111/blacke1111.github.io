@@ -69,40 +69,51 @@ public static void method3() {
 ```
 ## 可打断
 ```java
-@Slf4j(topic = "c.Test22")
-public class Test22 {
-    private static ReentrantLock reent=new ReentrantLock();
-    public static void main(String[] args) {
-      Thread t1=  new Thread(()->{
-            try {
-                log.debug("尝试获得锁");
-                reent.lockInterruptibly();
-            } catch (InterruptedException e) {
-                log.debug("获得锁失败");
-                e.printStackTrace();
-                return;
-            }
-            try {
-
-            }finally {
-                reent.unlock();
-            }
-
-        },"t1");
-        reent.lock();
-        t1.start();
-
-        Sleeper.sleep(1);
-
-        t1.interrupt();
-    }
+ReentrantLock lock = new ReentrantLock();
+Thread t1 = new Thread(() -> {
+    log.debug("启动...");
+ try {
+ lock.lockInterruptibly();
+ } catch (InterruptedException e) {
+ e.printStackTrace();
+ log.debug("等锁的过程中被打断");
+ return;
+ }
+ try {
+ log.debug("获得了锁");
+ } finally {
+ lock.unlock();
+ }
+}, "t1");
+lock.lock();
+log.debug("获得了锁");
+t1.start();
+try {
+ sleep(1);
+ t1.interrupt();
+ log.debug("执行打断");
+} finally {
+ lock.unlock();
 }
 
 
 ```
 输出：
 ```java
-18:44:33.186 c.Test22 [t1] - 尝试获得锁
+18:02:40.520 [main] c.TestInterrupt - 获得了锁
+18:02:40.524 [t1] c.TestInterrupt - 启动... 
+18:02:41.530 [main] c.TestInterrupt - 执行打断
+java.lang.InterruptedException 
+ at 
+java.util.concurrent.locks.AbstractQueuedSynchronizer.doAcquireInterruptibly(AbstractQueuedSynchr
+onizer.java:898) 
+ at 
+java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireInterruptibly(AbstractQueuedSynchron
+izer.java:1222) 
+ at java.util.concurrent.locks.ReentrantLock.lockInterruptibly(ReentrantLock.java:335) 
+ at cn.itcast.n4.reentrant.TestInterrupt.lambda$main$0(TestInterrupt.java:17) 
+ at java.lang.Thread.run(Thread.java:748) 
+18:02:41.532 [t1] c.TestInterrupt - 等锁的过程中被打断18:44:33.186 c.Test22 [t1] - 尝试获得锁
 18:44:34.185 c.Test22 [t1] - 获得锁失败
 java.lang.InterruptedException
 	at java.util.concurrent.locks.AbstractQueuedSynchronizer.doAcquireInterruptibly(AbstractQueuedSynchronizer.java:898)
@@ -244,7 +255,7 @@ ReentrantLock 的条件变量比 synchronized 强大之处在于，它是支持�
 醒
 使用要点：
 * await 前需要获得锁
-* await 执行后，会释放锁，进入 conditionObject 等待
+* await 执行后，会释放锁，进入 conditionObject 等待每个条件变量都拥有一个单独的等待队列。
 * await 的线程被唤醒（或打断、或超时）取重新竞争 lock 锁
 * 竞争 lock 锁成功后，从 await 后继续执行
 
@@ -314,3 +325,4 @@ public class Test24 {
 }
 ```
 
+# [ReentrantLock原理](https://blacke1111.github.io/2021/11/28/AQS/)
