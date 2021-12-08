@@ -472,7 +472,8 @@ public V get(Object key) {
             Node<K, V>[] tab, nt;
             int n, sc;
             while (s >= (long) (sc = sizeCtl) && (tab = table) != null &&
-                    (n = tab.length) < MAXIMUM_CAPACITY) {
+                    (n = tab.length) < MAXIMUM_CAPACITY) { 
+                //为什么用while而不是if是因为可以判断新扩容的数组是不又超过了阈值。
                 int rs = resizeStamp(n);
                 if (sc < 0) {
                     if ((sc >>> RESIZE_STAMP_SHIFT) != rs || sc == rs + 1 ||
@@ -490,6 +491,162 @@ public V get(Object key) {
             }
         }
     }
+ private final void transfer(Node<K,V>[] tab, Node<K,V>[] nextTab) {
+        int n = tab.length, stride;  //stride 主要和CPU相关
+        if ((stride = (NCPU > 1) ? (n >>> 3) / NCPU : n) < MIN_TRANSFER_STRIDE)  //每个线程处理桶的最小数目，可以看出核数越高步长越小，最小16个。
+            stride = MIN_TRANSFER_STRIDE; // subdivide range
+        if (nextTab == null) {
+            try {
+                @SuppressWarnings("unchecked")
+                Node<K,V>[] nt = (Node<K,V>[])new Node<?,?>[n << 1];  //扩容到2倍
+                nextTab = nt;
+            } catch (Throwable ex) {      // try to cope with OOME
+                sizeCtl = Integer.MAX_VALUE;  //扩容保护
+                return;
+            }
+            nextTable = nextTab;
+            transferIndex = n;  //扩容总进度，>=transferIndex的桶都已分配出去。
+        }
+        int nextn = nextTab.length;
+        //扩容时的特殊节点，标明此节点正在进行迁移，扩容期间的元素查找要调用其find()方法在nextTable中查找元素。
+        ForwardingNode<K,V> fwd = new ForwardingNode<K,V>(nextTab);
+        //当前线程是否需要继续寻找下一个可处理的节点
+        boolean advance = true;   //判断是否需要当前线程完成自己的步长（stride）后还需不需要进行数组的搬迁。
+        boolean finishing = false; //所有桶是否都已迁移完成。
+        for (int i = 0, bound = 0;;) {
+            Node<K,V> f; int fh;
+            //此循环的作用是确定当前线程要迁移的桶的范围或通过更新i的值确定当前范围内下一个要处理的节点。
+            while (advance) {
+                int nextIndex, nextBound;
+                if (--i >= bound || finishing)  //每次循环都检查结束条件
+                    advance = false;
+                    //迁移总进度<=0，表示所有桶都已迁移完成。
+                else if ((nextIndex = transferIndex) <= 0) {
+                    i = -1;
+                    advance = false;
+                }
+                else if (U.compareAndSwapInt
+                        (this, TRANSFERINDEX, nextIndex,
+                                nextBound = (nextIndex > stride ?
+                                        nextIndex - stride : 0))) {  //transferIndex减去已分配出去的桶。
+                    //确定当前线程每次分配的待迁移桶的范围为[bound, nextIndex)
+                    bound = nextBound;
+                    i = nextIndex - 1;
+                    advance = false;
+                }
+            }
+            //当前线程自己的活已经做完或所有线程的活都已做完，第二与第三个条件应该是下面让"i = n"后，再次进入循环时要做的边界检查。
+            if (i < 0 || i >= n || i + n >= nextn) {
+                int sc;
+                if (finishing) {  //所有线程已干完活，最后才走这里。
+                    nextTable = null;
+                    table = nextTab;  //替换新table
+                    sizeCtl = (n << 1) - (n >>> 1); //调sizeCtl为新容量0.75倍。
+                    return;
+                }
+                //当前线程已结束扩容，sizeCtl-1表示参与扩容线程数-1。
+                if (U.compareAndSwapInt(this, SIZECTL, sc = sizeCtl, sc - 1)) {
+                    //还记得addCount()处给sizeCtl赋的初值吗？相等时说明没有线程在参与扩容了，置finishing=advance=true，为保险让i=n再检查一次。
+                    if ((sc - 2) != resizeStamp(n) << RESIZE_STAMP_SHIFT)
+                        return;
+                    finishing = advance = true;
+                    i = n; // recheck before commit
+                }
+            }
+            else if ((f = tabAt(tab, i)) == null)
+                advance = casTabAt(tab, i, null, fwd);  //如果i处是ForwardingNode表示第i个桶已经有线程在负责迁移了。
+            else if ((fh = f.hash) == MOVED)
+                advance = true; // already processed
+            else {
+                synchronized (f) {  //桶内元素迁移需要加锁。
+                    if (tabAt(tab, i) == f) {
+                        Node<K,V> ln, hn;
+                        //链表的处理
+                        if (fh >= 0) {  //>=0表示是链表结点
+                            //由于n是2的幂次方（所有二进制位中只有一个1)，如n=16(0001 0000)，第4位为1，那么hash&n后的值第4位只能为0或1。所以可以根据hash&n的结果将所有结点分为两部分。
+                            //如果runbit等于1就表示当前节点，要放在新表的高位，0就是地位
+                            int runBit = fh & n;
+                            Node<K,V> lastRun = f;  
+                            //找出最后一段完整的fh&n不变的链表，这样最后这一段链表就不用重新创建新结点了。
+                            for (Node<K,V> p = f.next; p != null; p = p.next) {
+                                int b = p.hash & n;
+                                //求出最后一段是在新表中连续的链表的头节点。
+                                if (b != runBit) {
+                                    runBit = b;
+                                    lastRun = p;
+                                }
+                            }
+                            if (runBit == 0) {
+                                ln = lastRun;
+                                hn = null;
+                            }
+                            else {
+                                //runbit等于1时反在新表的高位
+                                hn = lastRun;
+                                ln = null;
+                            }
+                            //lastRun之前的结点因为fh&n不确定，所以全部需要重新迁移。
+                            for (Node<K,V> p = f; p != lastRun; p = p.next) {
+                                int ph = p.hash; K pk = p.key; V pv = p.val;
+                                if ((ph & n) == 0)  //接在低位
+                                    ln = new Node<K,V>(ph, pk, pv, ln);
+                                else //接在高位
+                                    hn = new Node<K,V>(ph, pk, pv, hn);
+                            }
+                            //低位链表放在i处
+                            setTabAt(nextTab, i, ln);
+                            //高位链表放在i+n处
+                            setTabAt(nextTab, i + n, hn);
+                            setTabAt(tab, i, fwd);  //在原table中设置ForwardingNode节点以提示该桶扩容完成。
+                            advance = true;
+                        }
+                        //红黑树的处理
+                        else if (f instanceof TreeBin) {
+                            TreeBin<K,V> t = (TreeBin<K,V>)f;
+                            TreeNode<K,V> lo = null, loTail = null;
+                            TreeNode<K,V> hi = null, hiTail = null;
+                            int lc = 0, hc = 0;
+                            for (Node<K,V> e = t.first; e != null; e = e.next) {
+                                int h = e.hash;
+                                TreeNode<K,V> p = new TreeNode<K,V>
+                                        (h, e.key, e.val, null, null);
+                                if ((h & n) == 0) {
+                                    if ((p.prev = loTail) == null)
+                                        lo = p;
+                                    else
+                                        loTail.next = p;
+                                    loTail = p;
+                                    ++lc;
+                                }
+                                else {
+                                    if ((p.prev = hiTail) == null)
+                                        hi = p;
+                                    else
+                                        hiTail.next = p;
+                                    hiTail = p;
+                                    ++hc;
+                                }
+                            }
+                            //如果拆分后的树的节点数量已经少于6个就需要重新转化为链表
+                            ln = (lc <= UNTREEIFY_THRESHOLD) ? untreeify(lo) :
+                                    (hc != 0) ? new TreeBin<K,V>(lo) : t;
+                            hn = (hc <= UNTREEIFY_THRESHOLD) ? untreeify(hi) :
+                                    (lc != 0) ? new TreeBin<K,V>(hi) : t;
+                            //CAS存储在nextTable的i位置上
+                            setTabAt(nextTab, i, ln);
+                            //CAS存储在nextTable的i+n位置上
+                            setTabAt(nextTab, i + n, hn);
+                            //CAS在原table的i处设置forwordingNode节点，表示这个这个节点已经处理完毕
+                            setTabAt(tab, i, fwd);
+                            advance = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
     
 ```
 
@@ -524,6 +681,7 @@ public int size() {
         }
         return sum;
     }
+
 ```
 
 **Java 8** 数组（Node） +（ 链表 Node | 红黑树 TreeNode ） 以下数组简称（table），链表简称（bin）
