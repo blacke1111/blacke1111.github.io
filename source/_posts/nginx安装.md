@@ -15,7 +15,19 @@ nginx压缩包
 链接：https://pan.baidu.com/s/1afOXqmdeerpA2Y-hPvGJWA 
 提取码：lxrs
 
-# 2.安装依赖包pcre
+# 2.安装依赖包
+
+直接安装全部依赖包：
+
+![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113201608.png)
+
+```java
+yum -y install make zlib zlib-devel gcc-c++ libtoll pcre-devel openssl openssl-devel
+```
+
+
+
+执行上面的命令成功不需要再做安装依赖包了
 
 （1）首先把要压缩包放入linux的 /usr/prce下
 

@@ -42,7 +42,7 @@ categories: RabbitMQ
 	rabbitmqctl cluster_status
 8.需要重新设置用户
 	创建账号
-		rabbitmqctl add_user admin 123
+		rabbitmqctl add_user admin 123456
 	设置用户角色
 		rabbitmqctl set_user_tags admin administrator
 	设置用户权限
@@ -83,30 +83,55 @@ categories: RabbitMQ
 
 5.就算整个集群只剩下一台机器了 依然能消费队列里面的消息说明队列里面的消息被镜像队列传递到相应机器里面了
 
-# **Haproxy+Keepalive** **实现高可用负载均衡**
+# **Nginx+Keepalive** **实现高可用负载均衡**
 
 ## **整体架构图** 
 
-​					![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220110214554.png)	
+​			
 
-## **Haproxy 实现负载均衡** 
+## **Nginx实现负载均衡** 
 
-HAProxy 提供高可用性、负载均衡及基于 TCPHTTP 应用的代理，支持虚拟主机，它是免费、快速并且可靠的一种解决方案，包括 Twitter,Reddit,StackOverflow,GitHub 在内的多家知名互联网公司在使用。HAProxy 实现了一种事件驱动、单一进程模型，此模型支持非常大的井发连接数。
+Nginx提供高可用性、负载均衡及基于 TCPHTTP 应用的代理，支持虚拟主机，它是免费、快速并且可靠的一种解决方案，包括 Twitter,Reddit,StackOverflow,GitHub 在内的多家知名互联网公司在使用。HAProxy 实现了一种事件驱动、单一进程模型，此模型支持非常大的井发连接数。
 扩展 nginx,lvs,haproxy 之间的区别: http://www.ha97.com/5646.html
 
-## **搭建步骤** 
 
-```java
-1.下载 haproxy(在 node1 和 node2)
-	yum -y install haproxy
-2.修改 node1 和 node2 的 haproxy.cfg
-    vim /etc/haproxy/haproxy.cfg
- 3.在两台节点启动 haproxy
-	haproxy -f /etc/haproxy/haproxy.cfg
-	ps -ef | grep haproxy
-4.访问地址
-	http://10.211.55.71:8888/stats
+
+## nginx.conf配置文件：
+
 ```
+
+#user  nobody;
+worker_processes  1;
+
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+#pid        logs/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+#tcp连接使用stream配置
+stream {
+    upstream rabbitmq{
+        server 192.168.32.3:5672 max_fails=2 fail_timeout=3s weight=2; ##最大失败2次 超时3秒   weight 权重大小 越大越优先  轮询 
+        server 192.168.32.4:5672 max_fails=2 fail_timeout=3s weight=2;
+        server 192.168.32.5:5672 max_fails=2 fail_timeout=3s weight=2;
+    }
+    server {
+        listen 5678;
+        proxy_connect_timeout 1s;
+        proxy_timeout 3s;
+        proxy_pass rabbitmq;
+ 
+    }  
+}
+```
+
+
 
 ## **Keepalived 实现双机(主备)热备**
 
