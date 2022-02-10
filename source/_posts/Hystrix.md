@@ -331,3 +331,148 @@ public class PaymentServiceImpl  implements PaymentService {
 
 ```
 
+### 熔断类型：
+
+**熔断打开**：请求不再进行调用当前服务，内部设置时钟一般为MTTR(平均故障处理时间)，当打开时长达到所设时钟则进入半熔断状态
+
+**熔断关闭**：熔断关闭不会对服务进行熔断
+
+**熔断半开**：部分请求根据规则调用当前服务，如果请求成功且符合规则则认为当前服务恢复正常，关闭熔断
+
+涉及到断路器的三个重要参数：**快照时间窗**、**请求总数阀值**、**错误百分比阀值**。
+1：快照时间窗：断路器确定是否打开需要统计一些请求和错误数据，而统计的时间范围就是快照时间窗，默认为最近的10秒。
+
+2：请求总数阀值：在快照时间窗内，必须满足请求总数阀值才有资格熔断。默认为20，意味着在10秒内，如果该hystrix命令的调用次数不足20次，即使所有的请求都超时或其他原因失败，断路器都不会打开。
+
+3：错误百分比阀值：当请求总数在快照时间窗内超过了阀值，比如发生了30次调用，如果在这30次调用中，有15次发生了超时异常，也就是超过50%的错误百分比，在默认设定50%阀值情况下，这时候就会将断路器打开。
+
+### 断路器开启或关闭的条件：
+
+当满足一定的阀值的时候（(默认10秒内超过20个请求次数)
+
+当失败率达到一定的时候(默认10秒内超过50%的请求失败)
+
+到达以上阀值，断路器将会开启
+
+当开启的时候，所有请求都不会进行转发
+
+一段时间之后(默认是5秒)，这个时候断路器是半开状态，会让其中一个请求进行转发。如果成功，断路器会关闭，若失败，继续开启。重复4和5
+
+**熔断器打开之后：**
+
+1：再有请求调用的时候，将不会调用主逻辑，而是直接调用降级fallback。通过断路器，实现了自动地发现错误并将降级逻辑切换为主逻辑，减少响应延迟的效果。
+
+2：原来的主逻辑要如何恢复呢？
+对于这一问题，hystrix也为我们实现了自动恢复功能。
+当断路器打开，对主逻辑进行熔断之后，hystrix会启动一个休眠时间窗，在这个时间窗内，降级逻辑是临时的成为主逻辑，
+当休眠时间窗到期，断路器将进入半开状态，释放一次请求到原来的主逻辑上，如果此次请求正常返回，那么断路器将继续闭合，
+主逻辑恢复，如果这次请求依然有问题，断路器继续进入打开状态，休眠时间窗重新计时
+
+**限流以后看Sentinel**
+
+## Hystrix步骤：
+
+![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220121182356.png)
+
+![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220121182416.png)
+
+## 图形化界面：
+
+除了隔离依赖服务的调用以外，Hystrix还提供了准实时的调用监控（Hystrix Dashboard），Hystrix会持续地记录所有通过Hystrix发起的请求的执行信息，并以统计报表和图形的形式展示给用户，包括每秒执行多少请求多少成功，多少失败等。Netflix通过hystrix-metrics-event-stream项目实现了对以上指标的监控。Spring Cloud也提供了Hystrix Dashboard的整合，对监控内容转化成可视化界面。
+
+### 创建新模块：
+
+#### 第一步创建模块
+
+​	cloud-consumer-hystrix-dashboard9001
+
+#### pom导入：
+
+```
+<dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+```
+
+#### yml文件:
+
+```yml
+server:
+  port: 9001
+```
+
+#### 主启动类：
+
+```java
+@SpringBootApplication
+@EnableHystrixDashboard
+public class HystrixDashboardMain9001 {
+    public static void main(String[] args) {
+        SpringApplication.run(HystrixDashboardMain9001.class,args);
+    }
+}
+
+```
+
+**启动服务**
+
+![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220121183827.png)
+
+断路器演示：
+
+新版要再8001服务中在著启动类中配置如下：
+
+```java
+@SpringBootApplication
+@EnableDiscoveryClient
+@EnableCircuitBreaker
+public class PaymentHystrixMain8001 {
+    public static void main(String[] args) {
+
+        SpringApplication.run(PaymentHystrixMain8001.class,args);
+    }
+    /**
+     *此配置是为了服务监控而配置，与服务容错本身无关，springcloud升级后的坑
+     *ServletRegistrationBean因为springboot的默认路径不是"/hystrix.stream"，
+     *只要在自己的项目里配置上下面的servlet就可以了
+     */
+    @Bean
+    public ServletRegistrationBean getServlet() {
+        HystrixMetricsStreamServlet streamServlet = new HystrixMetricsStreamServlet();
+        ServletRegistrationBean registrationBean = new ServletRegistrationBean(streamServlet);
+        registrationBean.setLoadOnStartup(1);
+        registrationBean.addUrlMappings("/hystrix.stream");
+        registrationBean.setName("HystrixMetricsStreamServlet");
+        return registrationBean;
+    }
+}
+
+```
+
+效果：
+
+![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220121191818.png)

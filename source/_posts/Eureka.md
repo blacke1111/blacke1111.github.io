@@ -1,6 +1,7 @@
 ---
 title: Eureka
 date: 2022-01-15 19:11:27
+tags: eureka
 categories: springcloud
 ---
 

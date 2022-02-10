@@ -40,7 +40,7 @@ rpm -q -a keepalived
 
 ## 4、完成高可用配置（主从配置）
 
-（1）修改/etc/keepalived/keepalivec.conf 配置文件
+（1）修改/etc/keepalived/keepalived.conf 配置文件
 
 主机配置：
 
