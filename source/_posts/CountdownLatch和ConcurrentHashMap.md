@@ -191,7 +191,8 @@ public class TestCyclicBarrier {
 
 # **线程安全集合类概述**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211201202838.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211201202838.png)
 
 
 
@@ -739,7 +740,8 @@ public ConcurrentHashMap(int initialCapacity, float loadFactor, int concurrencyL
 
 构造完成，如下图所示
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211202205745.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211202205745.png)
 
 可以看到 ConcurrentHashMap 没有实现懒惰初始化，空间占用不友好
 
@@ -747,7 +749,8 @@ public ConcurrentHashMap(int initialCapacity, float loadFactor, int concurrencyL
 
 例如，根据某一 hash 值求 segment 位置，先将高位向低位移动 this.segmentShift 位
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211202205804.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211202205804.png)
 
 **put** **流程**
 

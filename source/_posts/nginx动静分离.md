@@ -12,20 +12,26 @@ Nginx 动静分离简单来说就是把动态跟静态请求分开，不能理�
 
 ## 1.项目资源准备
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113195854.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220113195854.png)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113195913.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220113195913.png)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113195928.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220113195928.png)
 
 ## 2.进行 nginx 配置
 
 找到 nginx 安装目录，打开/conf/nginx.conf 配置文件，
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113195225.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220113195225.png)
 
 测试结果：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113195719.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220113195719.png)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113195658.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220113195658.png)

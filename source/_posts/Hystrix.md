@@ -179,7 +179,8 @@ public class PaymentController {
 
 开启Jmeter，来20000个并发压死8001,20000个请求都去访问paymentlnfo TimeOut服务
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220119193626.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220119193626.png)
 
 我们本来不需要耗时的服务变得卡顿原因：
 
@@ -199,21 +200,25 @@ tomcat的默认的工作线程数被打满 了，没有多余的线程来分解�
 
 业务类启用：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220119194143.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220119194143.png)
 
 主启动激活：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220119194236.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220119194236.png)
 
 ### 80fallback：
 
 业务类启用：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220119194412.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220119194412.png)
 
 主启动激活：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220119194504.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220119194504.png)
 
 
 
@@ -225,7 +230,8 @@ tomcat的默认的工作线程数被打满 了，没有多余的线程来分解�
 
 修改业务类：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220119195054.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220119195054.png)
 
 #### 统一和定义的分开解耦
 
@@ -260,7 +266,8 @@ public class PaymentFallbackService implements  PaymentHystrixService{
 
 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220119195343.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220119195343.png)
 
 
 
@@ -372,9 +379,11 @@ public class PaymentServiceImpl  implements PaymentService {
 
 ## Hystrix步骤：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220121182356.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220121182356.png)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220121182416.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220121182416.png)
 
 ## 图形化界面：
 
@@ -440,7 +449,8 @@ public class HystrixDashboardMain9001 {
 
 **启动服务**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220121183827.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220121183827.png)
 
 断路器演示：
 
@@ -475,4 +485,5 @@ public class PaymentHystrixMain8001 {
 
 效果：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220121191818.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220121191818.png)

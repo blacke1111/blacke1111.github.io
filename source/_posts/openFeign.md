@@ -22,7 +22,7 @@ Feign旨在使编写Java Http客户端变得更容易。
 
 利用Ribbon维护了Payment的服务列表信息，并且通过轮询实现了客户端的负载均衡。而与Ribbon不同的是，通过feign只需要定义服务绑定接口且以声明式的方法，优雅而简单的实现了服务调用
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220118203209.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220118203209.png)
 
 
 
@@ -30,7 +30,7 @@ Feign旨在使编写Java Http客户端变得更容易。
 
 ### 创建module
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220118203303.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220118203303.png)
 
 ### pom编写:
 
@@ -177,7 +177,7 @@ feign:
 
 ## 日志：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220118203859.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220118203859.png)
 
 ```java
 @Configuration

@@ -24,7 +24,8 @@ categories: java基础
 
 # 集合框架
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211113171108.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211113171108.png)
 
 **Collection接口**：单列集合，用来存储一个一个的对象  
 &emsp;&emsp;**List接口** ：存储有序的，可重复的数据  
@@ -109,7 +110,8 @@ ArrayList list = new ArrayList();//底层创建了长度是10的object[]数组  
 ...  
 list.add(11);//如果此次的添加导致底层elementData数组容量不够，则扩容。 
 默认情况下，扩容为原来的容量的1.5倍，同时需要将原有数组中的数据复制到新的数组中。|
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211113193854.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211113193854.png)
 
 **jdk 8**中ArrayList的变化:  
 ArrayList list = new ArrayList();//底层object[] elementData初始化为{}.并没有创建数组长度为10的数组  
@@ -127,7 +129,8 @@ jdk8：
 LinkedList list = new LinkedList();内部声明了Node类型的first和Last属性，默认值为null  
 List.add ( 123);//将123封装到Node中，创建了Node对象。
 其中，Node定义为:
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211113200814.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211113200814.png)
 
 ## Set接口
 * Set接口中没有额外定义新的方法，使用的都是Ccollection中声明过的方法。

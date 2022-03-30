@@ -19,7 +19,8 @@ nginx压缩包
 
 直接安装全部依赖包：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113201608.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220113201608.png)
 
 ```java
 yum -y install make zlib zlib-devel gcc-c++ libtoll pcre-devel openssl openssl-devel

@@ -11,7 +11,8 @@ categories: springcloud
 
  Spring Cloud Gateway 需要 Spring Boot 和 Spring Webflux 提供的 Netty 运行
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220121193902.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220121193902.png)
 
 ## Spring Cloud Gateway 具有如下特性：
 
@@ -51,7 +52,8 @@ Spring WebFlux 是 Spring 5.0 引入的新的响应式框架，区别于 Spring 
 
 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220121195428.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220121195428.png)
 
 客户端向 Spring Cloud Gateway 发出请求。然后在 Gateway Handler Mapping 中找到与请求相匹配的路由，将其发送到 Gateway Web Handler。
 Handler 再通过指定的过滤器链来将请求发送到我们实际的服务执行业务逻辑，然后返回。
@@ -155,7 +157,8 @@ public class GatewayMain9527 {
 
 ### postman测试或者直接浏览器输入uri：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220121212754.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220121212754.png)
 
 
 

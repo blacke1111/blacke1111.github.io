@@ -15,13 +15,13 @@ categories: nginx
 
 # 3、在 nginx 的配置文件中进行负载均衡的配置
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113192825.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220113192825.png)
 
 # 测试效果：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113193003.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220113193003.png)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113193030.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220113193030.png)
 
 # nginx 分配服务器策略
 

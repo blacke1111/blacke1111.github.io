@@ -202,16 +202,16 @@ public static void main(String[] args) {
 
 Semaphore 有点像一个停车场，permits 就好像停车位数量，当线程获得了 permits 就像是获得了停车位，然后停车场显示空余车位减一刚开始，permits（state）为 3，这时 5 个线程来获取资源
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130213950.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130213950.png)
 
 假设其中 Thread-1，Thread-2，Thread-4 cas 竞争成功，而 Thread-0 和 Thread-3 竞争失败，进入 AQS 队列park 阻塞
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130214016.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130214016.png)
 
 这时 Thread-4 释放了 permits，状态如下
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130214043.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130214043.png)
 
 接下来 Thread-0 竞争成功，permits 再次设置为 0，设置自己为 head 节点，断开原来的 head 节点，unpark 接下来的 Thread-3 节点，但由于 permits 是 0，因此 Thread-3 在尝试不成功后再次进入 park 状态
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130222257.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130222257.png)

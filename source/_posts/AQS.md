@@ -158,7 +158,8 @@ if(state 状态允许了) {
 
 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211128230732.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211128230732.png)
 
 队列中有 head 和 tail 两个指针节点，都用 volatile 修饰配合 cas 使用，每个节点有 state 维护节点状态入队伪代码，只需要考虑 tail 赋值的原子性
 
@@ -215,11 +216,13 @@ private Node enq(final Node node) {
 
 **主要用到** **AQS** **的并发工具类**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211128230911.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211128230911.png)
 
 # ReentrantLock原理
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211128230925.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211128230925.png)
 
 ## **非公平锁实现原理**
 
@@ -237,11 +240,13 @@ NonfairSync 继承自 AQS
 
 没有竞争时
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211128231027.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211128231027.png)
 
 第一个竞争出现时
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211128231045.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211128231045.png)
 
 Thread-1 执行了
 1.CAS 尝试将 state 由 0 改为 1，结果失败
@@ -250,34 +255,41 @@ Thread-1 执行了
 	* 图中黄色三角表示该 Node 的 waitStatus 状态，其中 0 为默认正常状态
 	* Node 的创建是懒惰的
 	* 其中第一个 Node 称为 Dummy（哑元）或哨兵，用来占位，并不关联线程
-	![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211128231142.png)
+	![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211128231142.png)
 	当前线程进入 acquireQueued 逻辑
 
 1. acquireQueued 会在一个死循环中不断尝试获得锁，失败后进入 park 阻塞
 2. 如果自己是紧邻着 head（排第二位），那么再次 tryAcquire 尝试获取锁，当然这时 state 仍为 1，失败
 3. 进入 shouldParkAfterFailedAcquire 逻辑，将前驱 node，即 head 的 waitStatus 改为 -1，这次返回 false
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211128231240.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211128231240.png)
 
 4. shouldParkAfterFailedAcquire 执行完毕回到 acquireQueued ，再次 tryAcquire 尝试获取锁，当然这时state 仍为 1，失败
 5. 当再次进入 shouldParkAfterFailedAcquire 时，这时因为其前驱 node 的 waitStatus 已经是 -1，这次返回true
 6. 进入 parkAndCheckInterrupt， Thread-1 park（灰色表示）
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211128231313.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211128231313.png)
 再次有多个线程经历上述过程竞争失败，变成这个样子
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211128231336.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211128231336.png)
 Thread-0 释放锁，进入 tryRelease 流程，如果成功
 * 设置 exclusiveOwnerThread 为 null
 * state = 0
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211128231402.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211128231402.png)
 
 当前队列不为 null，并且 head 的 waitStatus = -1，进入 unparkSuccessor 流程找到队列中离 head 最近的一个 Node（没取消的），unpark 恢复其运行，本例中即为 Thread-1回到 Thread-1 的 acquireQueued 流程
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211128232031.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211128232031.png)
 如果加锁成功（没有竞争)，会设置
 * exclusiveOwnerThread 为 Thread-1，state = 1
 * head 指向刚刚 Thread-1 所在的 Node，该 Node 清空 Thread
 * 原本的 head 因为从链表断开，而可被垃圾回收
 如果这时候有其它线程来竞争（非公平的体现），例如这时有 Thread-4 来了
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211128231617.png)如果不巧又被 Thread-4 占了先
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211128231617.png)如果不巧又被 Thread-4 占了先
 * Thread-4 被设置为 exclusiveOwnerThread，state = 1
 * Thread-1 再次进入 acquireQueued 流程，获取锁失败，重新进入 park 阻塞
 
@@ -733,33 +745,40 @@ static final class FairSync extends Sync {
 开始 Thread-0 持有锁，调用 await，进入 ConditionObject 的 addConditionWaiter 流程
 创建新的 Node 状态为 -2（Node.CONDITION），关联 Thread-0，加入等待队列尾部
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211129225148.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211129225148.png)
 
 接下来进入 AQS 的 fullyRelease 流程，释放同步器上的锁
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211129225213.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211129225213.png)
 
 unpark AQS 队列中的下一个节点，竞争锁，假设没有其他竞争线程，那么 Thread-1 竞争成功
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211129225238.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211129225238.png)
 
 park 阻塞 Thread-0
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211129225258.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211129225258.png)
 
 ### **signal** **流程**
 
 假设 Thread-1 要来唤醒 Thread-0
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211129225422.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211129225422.png)
 
 进入 ConditionObject 的 doSignal 流程，取得等待队列中第一个 Node，即 Thread-0 所在 Node
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211129225443.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211129225443.png)
 
 执行 transferForSignal 流程，将该 Node 加入 AQS 队列尾部，将 Thread-0 的 waitStatus 改为 0，Thread-3 的waitStatus 改为 -1
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211129225522.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211129225522.png)
 
 Thread-1 释放锁，进入 unlock 流程，略
 
@@ -988,4 +1007,3 @@ public class ConditionObject implements Condition, java.io.Serializable {
     // 工具方法 省略 ...
 }
 ```
-

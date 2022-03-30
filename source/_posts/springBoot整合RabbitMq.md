@@ -86,7 +86,7 @@ spring:
 
 创建两个队列 QA 和 QB，两者队列 TTL 分别设置为 10S 和 40S，然后在创建一个交换机 X 和死信交换机 Y，它们的类型都是 direct，创建一个死信队列 QD，它们的绑定关系如下：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220108213107.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220108213107.png)
 
 ### **配置交换机和队列以及它们之间的关系代码** 
 
@@ -210,7 +210,7 @@ public class DeadLetterConsumer {
 
 发起一个请求 http://localhost:8080/ttl/sendMsg/xxx
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220108213449.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220108213449.png)
 
 第一条消息在 10S 后变成了死信消息，然后被消费者消费掉，第二条消息在 40S 之后变成了死信消息，然后被消费掉，这样一个延时队列就打造完成了。
 不过，如果这样使用的话，岂不是每增加一个新的时间需求，就要新增一个队列，这里只有 10S 和 40S两个时间选项，如果需要一个小时后处理，那么就需要增加 TTL 为一个小时的队列，如果是预定会议室然后提前通知这样的场景，岂不是要增加无数个队列才能满足需求？
@@ -219,7 +219,7 @@ public class DeadLetterConsumer {
 
 ### **代码架构图** 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220108213551.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220108213551.png)
 
 ### **配置文件类代码** 
 
@@ -297,7 +297,7 @@ http://localhost:8080/ttl/sendExpirationMsg/你好 1/20000
 http://localhost:8080/ttl/sendExpirationMsg/你好 2/2000
 ```
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220108213813.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220108213813.png)
 
 看起来似乎没什么问题，但是在最开始的时候，就介绍过如果使用在消息属性上设置 TTL 的方式，消息可能并不会按时“死亡“，因为 **RabbitMQ** **只会检查第一个消息是否过期**，如果过期则丢到死信队列，**如果第一个消息的延时时长很长，而第二个消息的延时时长很短，第二个消息并不会优先得到执行**
 
@@ -311,11 +311,11 @@ rabbitmq_delayed_message_exchange 插件，然后解压放置到 RabbitMQ 的插
 /usr/lib/rabbitmq/lib/rabbitmq_server-3.8.8/plugins
 rabbitmq-plugins enable rabbitmq_delayed_message_exchange
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220108213853.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220108213853.png)
 
 **代码架构图** 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220108213915.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220108213915.png)
 
 ### **配置文件类代码** 
 
@@ -421,7 +421,7 @@ http://localhost:8080/ttl/sendDelayMsg/delayed你好!!/20000
 http://localhost:8080/ttl/sendDelayMsg/delayed你好!!/2000
 ```
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220108221325.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220108221325.png)
 
 第二个消息被先消费掉了，符合预期
 

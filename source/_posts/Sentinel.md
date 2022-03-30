@@ -16,15 +16,15 @@ https://github.com/alibaba/Sentinel/releases
 
 然后执行 java -jar  jar包名
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220127200655.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220127200655.png)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220127200714.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220127200714.png)
 
 sentinel采用的是懒加载机制监控。
 
 ## 案例：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220127200758.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220127200758.png)
 
 pom:
 
@@ -150,9 +150,9 @@ public class MainApp8401 {
 
 然后启动 ，访问http://localhost:8401/testA
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220127200945.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220127200945.png)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220127201050.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220127201050.png)
 
 
 
@@ -236,9 +236,9 @@ public class FlowLimitController {
 
 ```
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220127210616.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220127210616.png)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220127210659.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220127210659.png)
 
 而访问TestB不会发生限流
 
@@ -289,7 +289,7 @@ public class RateLimitController {
 
 可以通过@SentinelResource的value配置规则，也可以通过地址配置
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220128195947.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220128195947.png)
 
 
 
@@ -331,7 +331,7 @@ public class CustomerBlockHandler {
 }
 ```
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220128200602.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220128200602.png)
 
 
 
@@ -345,7 +345,7 @@ public class CustomerBlockHandler {
 
 module :
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220128203001.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220128203001.png)
 
 pom：
 
@@ -462,7 +462,7 @@ public class PaymentMain9003 {
 
 mudule:
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220128203132.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220128203132.png)
 
 pom:
 
@@ -779,9 +779,9 @@ feign:
 
 nacos上配置:
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220129211057.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220129211057.png)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220129210807.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220129210807.png)
 
 resource：资源名称；
 limitApp：来源应用；
@@ -797,4 +797,4 @@ clusterMode：是否集群。
 
 访问:http://localhost:8401//rateLimit/byUrl
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220129210853.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220129210853.png)

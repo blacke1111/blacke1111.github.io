@@ -22,7 +22,7 @@ categories: springcloud
 
 先拷贝一份出厂默认的file.conf：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220129213623.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220129213623.png)
 
 主要修改：自定义事务组名称+事务日志存储模式为db+数据库连接信息
 
@@ -30,15 +30,15 @@ categories: springcloud
 
 service模块修改事务组名称：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220130201514.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220130201514.png)
 
 存储模式为db
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220129214048.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220129214048.png)
 
 修改数据库连接信息：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220129220025.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220129220025.png)
 
 
 
@@ -46,11 +46,11 @@ service模块修改事务组名称：
 
 导入conf下的db_store.sql文件建表
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220129214556.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220129214556.png)
 
 **修改registry.conf文件：**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220129215931.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220129215931.png)
 
 
 
@@ -58,11 +58,11 @@ service模块修改事务组名称：
 
 **一定要把原来的删除掉**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220129220056.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220129220056.png)
 
 然后cmd启动bin下的seata-server.bat
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220129220159.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220129220159.png)
 
 
 
@@ -147,7 +147,7 @@ CREATE TABLE `undo_log` (
 3  其保存成“after image”，最后生成行锁。
 以上操作全部在一个数据库事务内完成，这样保证了一阶段操作的原子性。
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220130215035.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220130215035.png)
 
 
 
@@ -156,14 +156,14 @@ CREATE TABLE `undo_log` (
 二阶段如是顺利提交的话，
 因为“业务 SQL”在一阶段已经提交至数据库，所以Seata框架只需将一阶段保存的快照数据和行锁删掉，完成数据清理即可。
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220130215204.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220130215204.png)
 
 二阶段回滚：
 二阶段如果是回滚的话，Seata 就需要回滚一阶段已经执行的“业务 SQL”，还原业务数据。
 回滚方式便是用“before image”还原业务数据；但在还原前要首先要校验脏写，对比“数据库当前业务数据”和 “after image”，
 如果两份数据完全一致就说明没有脏写，可以还原业务数据，如果不一致就说明有脏写，出现脏写就需要转人工处理。
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220130221150.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220130221150.png)
 
 图上before image -》逆向sql  解释：
 

@@ -18,13 +18,13 @@ tomcat安装文件放到linux系统中，解压
 
 记得**关闭防火墙**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220112201738.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220112201738.png)
 
 ## 配置反向代理
 
 ### 过程:
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220112201858.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220112201858.png)
 
 ### **具体配置**
 
@@ -32,17 +32,21 @@ tomcat安装文件放到linux系统中，解压
 
 现在自己本机上配置host文件
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220112202522.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220112202522.png)
 
 hosts文件最下面添加：
 
 ```
-服务器ip www.123.com
+192.168.17.129 www.123.com
 ```
 
 **第二步 在** **nginx** **进行请求转发的配置（反向代理配置）**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220112202626.png)
+配置文件目录 /usr/local/nginx/conf下
+
+
+
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220112202626.png)
 
 **第三步最终测试**
 
@@ -54,6 +58,6 @@ hosts文件最下面添加：
 
 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220112204036.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220112204036.png)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220112212255.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220112212255.png)

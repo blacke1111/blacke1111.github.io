@@ -10,7 +10,7 @@ categories: RabbitMQ
 
 在下图中，“ P”是我们的生产者，“ C”是我们的消费者。中间的框是一个队列-RabbitMQ 代表使用者保留的消息缓冲区
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220105224634.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220105224634.png)
 
 
 

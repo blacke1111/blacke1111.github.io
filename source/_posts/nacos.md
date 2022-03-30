@@ -16,7 +16,8 @@ Nacos 帮助您更敏捷和容易地构建、交付和管理微服务平台。 N
 
 服务发现是微服务架构中的关键组件之一。在这样的架构中，手动为每个客户端配置服务列表可能是一项艰巨的任务，并且使动态扩展变得极其困难。Nacos Discovery 帮助您将服务自动注册到 Nacos 服务器，Nacos 服务器会跟踪服务并动态刷新服务列表。此外，Nacos Discovery 将服务实例的一些元数据，如主机、端口、健康检查 URL、主页等注册到 Nacos。关于如何下载和启动 Nacos，请参考[Nacos 官网](https://nacos.io/zh-cn/docs/quick-start.html)。
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220124203001.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220124203001.png)
 
 首先去官网下载最新的安装包：
 
@@ -30,7 +31,8 @@ startup.cmd -m standalone
 
 密码账号都是nacos
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220124203218.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220124203218.png)
 
 关闭：
 
@@ -134,19 +136,22 @@ public class AlibabaProviderMain9001 {
 
 启动：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220124203441.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220124203441.png)
 
 克隆一个模块9002。。搭建集群为负载均衡做准备
 
 负载均衡：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220124205324.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220124205324.png)
 
 利用ribbon实现负载均衡
 
 ## 消费者module搭建：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220124205017.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220124205017.png)
 
 pom：
 
@@ -264,7 +269,8 @@ public class AlibabaOrderMain83 {
 
 启动主启动类。
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220124205209.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220124205209.png)
 
 访问：http://localhost:83/consumer/payment/nacos/1
 
@@ -272,7 +278,8 @@ public class AlibabaOrderMain83 {
 
 ## 注册中心对比：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220124205826.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220124205826.png)
 
 C是所有节点在同一时间看到的数据是一致的；而A的定义是所有的请求都会收到响应。
 
@@ -296,11 +303,12 @@ ${prefix}-${spring.profiles.active}.${file-extension}
 
 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220125191539.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220125191539.png)
 
 ### pom:
 
-```
+```xml
  <dependencies>
         <!--nacos-config-->
         <dependency>
@@ -408,11 +416,52 @@ public class NacosConfigClientMain3377
 
 ### nacos：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220125191834.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220125191834.png)
 
 访问http://localhost:3377/config/info
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220125191808.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220125191808.png)
+
+读取顺序：
+
+先通过bootstrap。yml配置的 config文件的地址查找 配置文件 ，如果查找得到就配置这里面的 ，如果没有自己项目中的application.yml
+
+优先级：***bootstrap.yml > application.yml > application-dev.yml > nacos-service.yaml >nacos-service-dev.yaml***
+
+注意：**虽然bootstrap中配置了启动环境为dev 但是在启动服务的时候依然会读取本地的application.yml和nacos上面的配置文件**
+
+如果bootstrap.yml配置的是测试环境
+
+```yml
+ profiles:
+    active: stg
+```
+
+那么服务启动后，各个配置文件的加载顺序为
+
+**bootstrap.yml > application.yml > application-stg.yml > order-service.yaml >order-service-stg.yaml**
+
+重点：**后面加载的配置会覆盖前面加载的配置内容**
+
+命名空间配置要配置在bootstrap.yml中：
+
+```properties
+spring.cloud.nacos.config.namespace=a5bbe21a-6c89-47f7-9c27-ade33f803f00
+```
+
+指定配置文件bootstart：
+
+```properties
+spring.cloud.nacos.config.ext-config[0].data-id=port.properties
+# 开启动态刷新配置，否则配置文件修改，工程无法感知
+spring.cloud.nacos.config.ext-config[0].refresh=true
+```
+
+优先级：**bootstrap.yml > application.yml > application-stg.yml > port.properties>order-service.yaml >order-service-stg.yaml**
+
+
 
 ## 动态刷新：
 
@@ -424,7 +473,8 @@ nacos自带动态刷新，不需要发送post请求
    类似Java里面的package名和类名
    最外层的namespace是可以用于区分部署环境的，Group和DataID逻辑上区分两个目标对象。
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220125193431.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220125193431.png)
 
 默认情况：
 Namespace=public，Group=DEFAULT_GROUP, 默认Cluster是DEFAULT
@@ -496,13 +546,15 @@ db.password=***********
 tar -vxf  nacos-server-2.0.4.tar.gz
 ```
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220126234148.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220126234148.png)
 
 
 
 进入nacos目录下的conf目录：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220126234248.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220126234248.png)
 
 **第三步：**
 
@@ -562,11 +614,13 @@ cp cluster.conf.example cluster.conf
 
 可以看到 nacos/logs/start.out 日志文件：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220127000424.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220127000424.png)
 
 这样就启动成功了；
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220127000521.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220127000521.png)
 
 关闭nacos：
 

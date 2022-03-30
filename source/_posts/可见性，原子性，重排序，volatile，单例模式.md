@@ -30,13 +30,13 @@ public static void main(String[] args) throws InterruptedException {
 
 为什么呢？分析一下：
 1. 初始状态， t 线程刚开始从主内存读取了 run 的值到工作内存。
- ![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211123214705.png)
+ ![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211123214705.png)
 2. 因为 t 线程要频繁从主内存中读取 run 的值，JIT 编译器会将 run 的值缓存至自己工作内存中的高速缓存中，
 减少对主存中 run 的访问，提高效率
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211123214734.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211123214734.png)
 3. 1 秒之后，main 线程修改了 run 的值，并同步至主存，而 t 是从自己工作内存中的高速缓存中读取这个变量
 的值，结果永远是旧值
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211123214802.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211123214802.png)
 
 
 **解决方法**
@@ -120,7 +120,7 @@ IPC（Instruction Per Clock Cycle） 即 CPI 的倒数，表示每个时钟周�
 
 事实上，现代处理器会设计为一个时钟周期完成一条执行时间最长的 CPU 指令。为什么这么做呢？可以想到指令
 还可以再划分成一个个更小的阶段，例如，每条指令都可以分为： 取指令 - 指令译码 - 执行指令 - 内存访问 - 数据写回 这 5 个阶段
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211124212123.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211124212123.png)
 
 在不改变程序结果的前提下，这些指令的各个阶段可以通过**重排序**和**组合**来实现指令级并行，这一技术在 80's 中叶到 90's 中叶占据了计算架构的重要地位。
 
@@ -268,7 +268,7 @@ public void actor1(I_Result r) {
  }
 }
 ```
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211124220838.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211124220838.png)
 
 
 	## 2.如何保证有序性
@@ -293,12 +293,12 @@ public void actor1(I_Result r) {
  }
 }
 ```
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211124220838.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211124220838.png)
 还是那句话，不能解决指令交错：
 * 写屏障仅仅是保证之后的读能够读到最新的结果，但不能保证读跑到它前面去
 * 而有序性的保证也只是保证了本线程内相关代码不被重排序
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211124220931.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211124220931.png)
 	
 	## 3.double-checked locking 问题
 以著名的 double-checked locking 单例模式为例
@@ -357,7 +357,7 @@ public final class Singleton {
 * 24 表示利用一个对象引用，赋值给 static INSTANCE
 也许 jvm 会优化为：先执行 24，再执行 21。如果两个线程 t1，t2 按如下时间序列执行：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211124221432.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211124221432.png)
 
 关键在于 0: getstatic 这行代码在 monitor 控制之外，它就像之前举例中不守规则的人，可以越过 monitor 读取INSTANCE 变量的值
 这时 t1 还未完全将构造方法执行完毕，如果在构造方法中要执行很多初始化操作，那么 t2 拿到的是将是一个未初始化完毕的单例

@@ -18,7 +18,8 @@ categories: springcloud
 Eureka采用了CS的设计架构，Eureka Server 作为服务注册功能的服务器，它是服务注册中心。而系统中的其他微服务，使用 Eureka的客户端连接到 Eureka Server并维持心跳连接。这样系统的维护人员就可以通过 Eureka Server 来监控系统中各个微服务是否正常运行。
 在服务注册与发现中，有一个注册中心。当服务器启动的时候，会把当前自己服务器的信息 比如 服务地址通讯地址等以别名方式注册到注册中心上。另一方（消费者|服务提供者），以该别名的方式去注册中心上获取到实际的服务通讯地址，然后再实现本地RPC调用RPC远程调用框架核心设计思想：在于注册中心，因为使用注册中心管理每个服务与服务之间的一个依赖关系(服务治理概念)。在任何rpc远程框架中，都会有一个注册中心(存放服务地址相关信息(接口地址))
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220115191444.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220115191444.png)
 
 ## Eureka Server提供服务注册服务
 
@@ -36,7 +37,8 @@ Eureka采用了CS的设计架构，Eureka Server 作为服务注册功能的服�
 
 1.建module
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220115192931.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220115192931.png)
 
 2.改pom
 
@@ -137,13 +139,15 @@ public class EurekaMain7001 {
 
 5.测试
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220115194846.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220115194846.png)
 
 
 
 ## 注册服务：
 
-​	![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220115195222.png)
+​	![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220115195222.png)
 
 在这个模块下加入新的pom:
 
@@ -186,7 +190,8 @@ public class PaymentMain8001 {
 
 测试启动主启动类:
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220115200037.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220115200037.png)
 
 
 
@@ -196,7 +201,8 @@ public class PaymentMain8001 {
 
 Eureka7001配置yml：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220115203441.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220115203441.png)
 
 ```yaml
 server:
@@ -216,7 +222,8 @@ eureka:
 
 Eureka7002配置yml：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220115203518.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220115203518.png)
 
 ```yaml
 server:
@@ -242,15 +249,18 @@ defaultZone: http://eureka7001:7001/eureka,http://eureka7002:7002/eureka
 
 测试：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220115203627.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220115203627.png)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220115203640.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220115203640.png)
 
 ## 配置负载均衡：
 
 ### 首先构建一个订单消费集群：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220116193237.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220116193237.png)
 
 ### 再配置我们的消费者服务：
 
@@ -305,7 +315,8 @@ instance-id: payment8001  # 配置服务名称
 prefer-ip-address: true   #访问路径可以显示ip地址
 ```
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220116194939.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220116194939.png)
 
 ## 服务发现：
 
@@ -338,9 +349,11 @@ prefer-ip-address: true   #访问路径可以显示ip地址
 
 http://localhost:8001/payment/discovery
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220116200614.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220116200614.png)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220116200603.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220116200603.png)
 
 
 
@@ -353,7 +366,8 @@ http://localhost:8001/payment/discovery
 EMERGENCY! EUREKA MAY BE INCORRECTLY CLAIMING INSTANCES ARE UP WHEN THEY'RE NOT. 
 RENEWALS ARE LESSER THAN THRESHOLD AND HENCE THE INSTANCES ARE NOT BEING EXPIRED JUST TO BE SAFE 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220116200726.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220116200726.png)
 
 
 
@@ -367,7 +381,8 @@ RENEWALS ARE LESSER THAN THRESHOLD AND HENCE THE INSTANCES ARE NOT BEING EXPIRED
 
 默认情况下，如果EurekaServer在一定时间内没有接收到某个微服务实例的心跳，EurekaServer将会注销该实例（默认90秒）。但是网络分区故障发生(延时、卡顿、拥挤)时，微服务与EurekaServer之间无法正常通信，以上行为可能变得非常危险了——因为微服务本身其实是健康的，此时本不应该注销这个微服务。Eureka通过“自我保护模式”来解决这个问题——当EurekaServer节点在短时间内丢失过多客户端时（可能发生了网络分区故障），那么这个节点就会进入自我保护模式。
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220116201821.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220116201821.png)
 
 在自我保护模式中，Eureka Server会保护服务注册表中的信息，不再注销任何服务实例。它的设计哲学就是宁可保留错误的服务注册信息，也不盲目注销任何可能健康的服务实例。一句话讲解：好死不如赖活着
 

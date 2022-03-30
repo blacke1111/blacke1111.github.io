@@ -160,15 +160,15 @@ class CachedData {
 
 先清缓存
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211129232507.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211129232507.png)
 
 先更新数据库
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211129232530.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211129232530.png)
 
 补充一种情况，假设查询线程 A 查询数据时恰好缓存数据由于时间到期失效，或是第一次查询
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211129232546.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211129232546.png)
 
 这种情况的出现几率非常小，见 facebook 论文
 
@@ -282,7 +282,7 @@ class GenericCachedDao<T> {
 
 使用的是 state 的高 16 位 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130205756.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130205756.png)
 
 2）t2 执行 r.lock，这时进入读锁的 sync.acquireShared(1) 流程，首先会进入 tryAcquireShared 流程。如果有写锁占据，那么 tryAcquireShared 返回 -1 表示失败
 > tryAcquireShared 返回值表示
@@ -290,39 +290,39 @@ class GenericCachedDao<T> {
 > * 0 表示成功，但后继节点不会继续唤醒
 > * 正数表示成功，而且数值是还有几个后继节点需要唤醒，读写锁返回 1* 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130205900.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130205900.png)
 
 3）这时会进入 sync.doAcquireShared(1) 流程，首先也是调用 addWaiter 添加节点，不同之处在于节点被设置为Node.SHARED 模式而非 Node.EXCLUSIVE 模式，注意此时 t2 仍处于活跃状态
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130205922.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130205922.png)
 
 4）t2 会看看自己的节点是不是老二，如果是，还会再次调用 tryAcquireShared(1) 来尝试获取锁
 
 5）如果没有成功，在 doAcquireShared 内 for (;;) 循环一次，把前驱节点的 waitStatus 改为 -1，再 for (;;) 循环一次尝试 tryAcquireShared(1) 如果还不成功，那么在 parkAndCheckInterrupt() 处 park
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130205942.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130205942.png)
 
 ### **t3 r.lock，t4 w.lock**
 
 这种状态下，假设又有 t3 加读锁和 t4 加写锁，这期间 t1 仍然持有锁，就变成了下面的样子
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130210024.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130210024.png)
 
 ### **t1 w.unlock**
 
 这时会走到写锁的 sync.release(1) 流程，调用 sync.tryRelease(1) 成功，变成下面的样子
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130210044.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130210044.png)
 
 接下来执行唤醒流程 sync.unparkSuccessor，即让老二恢复运行，这时 t2 在 doAcquireShared 内parkAndCheckInterrupt() 处恢复运行
 
 这回再来一次 for (;;) 执行 tryAcquireShared 成功则让读锁计数加一
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130210107.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130210107.png)
 
 这时 t2 已经恢复运行，接下来 t2 调用 setHeadAndPropagate(node, 1)，它原本所在节点被置为头节点
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130210126.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130210126.png)
 
 事情还没完，在 setHeadAndPropagate 方法内还会检查下一个节点是否是 shared，如果是则调用
 
@@ -330,15 +330,15 @@ doReleaseShared() 将 head 的状态从 -1 改为 0 并唤醒老二，这时 t3 
 
 parkAndCheckInterrupt() 处恢复运行
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130210143.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130210143.png)
 
 这回再来一次 for (;;) 执行 tryAcquireShared 成功则让读锁计数加一
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130210157.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130210157.png)
 
 这时 t3 已经恢复运行，接下来 t3 调用 setHeadAndPropagate(node, 1)，它原本所在节点被置为头节点
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130210224.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130210224.png)
 
 下一个节点不是 shared 了，因此不会继续唤醒 t4 所在节点
 
@@ -346,18 +346,18 @@ parkAndCheckInterrupt() 处恢复运行
 
 t2 进入 sync.releaseShared(1) 中，调用 tryReleaseShared(1) 让计数减一，但由于计数还不为零
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130210247.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130210247.png)
 
 t3 进入 sync.releaseShared(1) 中，调用 tryReleaseShared(1) 让计数减一，这回计数为零了，进入
 
 doReleaseShared() 将头节点从 -1 改为 0 并唤醒老二，即
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130210303.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130210303.png)
 
 之后 t4 在 acquireQueued 中 parkAndCheckInterrupt 处恢复运行，再次 for (;;) 这次自己是老二，并且没有其他
 
 竞争，tryAcquire(1) 成功，修改头结点，流程结束
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211130210320.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211130210320.png)
 
 **读图时一定切记配合源码**

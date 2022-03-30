@@ -79,13 +79,15 @@ RabbitMQ 是一个消息中间件：它接受并转发消息。你可以把它�
 
 ## **RabbitMQ 核心部分** 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220105220852.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220105220852.png)
 
 
 
 ## **各个名词介绍** 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220105220559.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220105220559.png)
 
 **Broker**：接收和分发消息的应用，RabbitMQ Server 就是 Message Broker
 
@@ -113,7 +115,8 @@ RabbitMQ 是一个消息中间件：它接受并转发消息。你可以把它�
 
 	上传到/usr/local/software 目录下(如果没有 software 需要自己创建)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220105223800.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220105223800.png)
 
 3.安装文件(分别按照以下顺序安装)
 
@@ -137,7 +140,8 @@ RabbitMQ 是一个消息中间件：它接受并转发消息。你可以把它�
 
 	/sbin/service rabbitmq-server status
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220105223850.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220105223850.png)
 
 停止服务(选择执行)
 
@@ -151,7 +155,8 @@ RabbitMQ 是一个消息中间件：它接受并转发消息。你可以把它�
 
 用默认账号密码(guest)访问地址 http://47.115.185.244:15672/出现权限问题
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220105223912.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220105223912.png)
 
 4.添加一个新的用户
 
@@ -177,7 +182,8 @@ rabbitmqctl add_user admin 123456
 
 5.再次利用 admin 用户登录
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220105223942.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220105223942.png)
 
 6. 重置命令
 

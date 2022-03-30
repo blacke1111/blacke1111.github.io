@@ -17,7 +17,7 @@ categories: RabbitMQ
 
 发布确认默认是没有开启的，如果要开启需要调用方法 confirmSelect，每当你要想使用发布确认，都需要在 channel 上调用该方法
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220106202806.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220106202806.png)
 
 ### **单个确认发布** 
 
@@ -113,7 +113,7 @@ broker已经收到消息
 
 异步确认虽然编程逻辑比上两个要复杂，但是性价比最高，无论是可靠性还是效率都没得说，他是利用回调函数来达到消息可靠性传递的，这个中间件也是通过函数回调来保证是否投递成功，下面就让我们来详细讲解异步确认是怎么实现的。
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220106205014.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220106205014.png)
 
 代码演示：
 

@@ -6,22 +6,22 @@ categories: java基础
 ---
 ## java对象头
 普通对象
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211120204330.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211120204330.png)
 
 数组对象：
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211120204350.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211120204350.png)
 
 其中 Mark Word 结构为
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211120204434.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211120204434.png)
 
 64位虚拟机：
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211120204502.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211120204502.png)
 
 ## 原理之 Monitor(锁)
 Monitor 被翻译为监视器或管程  
 每个 Java 对象都可以关联一个 Monitor 对象，如果使用 synchronized 给对象上锁（重量级）之后，该对象头的Mark Word 中就被设置指向 Monitor 对象的指针  
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211120203639.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211120203639.png)
 * 刚开始 Monitor 中 Owner 为 null
 * 当 Thread-2 执行 synchronized(obj) 就会将 Monitor 的所有者 Owner 置为 Thread-2，Monitor中只能有一个 Owner  
 * 在 Thread-2 上锁的过程中，如果 Thread-3，Thread-4，Thread-5 也来执行 synchronized(obj)，就会进入EntryList BLOCKED  
@@ -143,21 +143,21 @@ public static void method2() {
 ```
 * 创建锁记录（Lock Record）对象，每个线程的栈帧都会包含一个锁记录的结构，内部可以存储锁定对象的
 Mark Word
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211120205907.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211120205907.png)
 
 * 让锁记录中 Object reference 指向锁对象，并尝试用 cas 替换 Object 的 Mark Word，将 Mark Word 的值存入锁记录
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211120205951.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211120205951.png)
 
 * 如果 cas 替换成功，对象头中存储了 锁记录地址和状态 00 ，表示由该线程给对象加锁，这时图示如下
- ![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211120210018.png)
+ ![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211120210018.png)
 
 * 如果 cas 失败，有两种情况
 	* 如果是其它线程已经持有了该 Object 的轻量级锁，这时表明有竞争，进入锁膨胀过程
 	*如果是自己执行了 synchronized 锁重入，那么再添加一条 Lock Record 作为重入的计数
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211120210115.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211120210115.png)
 
 * 当退出 synchronized 代码块（解锁时）如果有取值为 null 的锁记录，表示有重入，这时重置锁记录，表示重入计数减一
- ![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211120210142.png)
+ ![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211120210142.png)
 
 * 当退出 synchronized 代码块（解锁时）锁记录的值不为 null，这时使用 cas 将 Mark Word 的值恢复给对象头
 	* 成功，则解锁成功
@@ -177,12 +177,12 @@ public static void method1() {
 }
 ```
 * 当 Thread-1 进行轻量级加锁时，Thread-0 已经对该对象加了轻量级锁
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211120211443.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211120211443.png)
 
 * 这时 Thread-1 加轻量级锁失败，进入锁膨胀流程
 	* 即为 Object 对象申请 Monitor 锁，让 Object 指向重量级锁地址
 	* 然后自己进入 Monitor 的 EntryList BLOCKED
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211120211503.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211120211503.png)
 * 当 Thread-0 退出同步块解锁时，使用 cas 将 Mark Word 的值恢复给对象头，失败。这时会进入重量级解锁
 流程，即按照 Monitor 地址找到 Monitor 对象，设置 Owner 为 null，唤醒 EntryList 中 BLOCKED 线程
 
@@ -191,9 +191,9 @@ public static void method1() {
 
 重量级锁竞争的时候，还可以使用自旋来进行优化，如果当前线程自旋成功（即这时候持锁线程已经退出了同步
 块，释放了锁），这时当前线程就可以避免阻塞。
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211121143559.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211121143559.png)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211121143620.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211121143620.png)
 
 * 自旋会占用 CPU 时间，单核 CPU 自旋就是浪费，多核 CPU 自旋才能发挥优势。
 * 在 Java 6 之后自旋锁是自适应的，比如对象刚刚的一次自旋操作成功过，那么认为这次自旋成功的可能性会高，就多自旋几次；反之，就少自旋甚至不自旋，总之，比较智能。
@@ -227,10 +227,10 @@ public static void m3() {
 }
 ```
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211121150109.png)
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211121150056.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211121150109.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211121150056.png)
 回忆对象头：
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211120204502.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211120204502.png)
 
 
 一个对象创建时：  
@@ -268,7 +268,7 @@ class Dog{
 ```
 
 执行结果：
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211121151345.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211121151345.png)
 
 
 使用XX:BiasedLockingStartupDelay=0就不需要睡眠4秒了。
@@ -408,7 +408,7 @@ static Thread t1,t2,t3;
 
 
 ## wait/notify原理
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211121183400.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211121183400.png)
 * Owner 线程发现条件不满足，调用 wait 方法，即可进入 WaitSet 变为 WAITING 状态  
 * BLOCKED 和 WAITING 的线程都处于阻塞状态，不占用 CPU 时间片  
 * BLOCKED 线程会在 Owner 线程释放锁时唤醒   
@@ -506,7 +506,7 @@ LockSupport.unpark(暂停线程对象)
 2. 检查 _counter ，本情况为 0，这时，获得 _mutex 互斥锁
 3. 线程进入 _cond 条件变量阻塞
 4. 设置 _counter = 0
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211122233003.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211122233003.png)
 
 
 
@@ -514,4 +514,4 @@ LockSupport.unpark(暂停线程对象)
 2. 唤醒 _cond 条件变量中的 Thread_0
 3. Thread_0 恢复运行
 4. 设置 _counter 为 0
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211122233052.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211122233052.png)

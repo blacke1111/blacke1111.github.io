@@ -8,7 +8,7 @@ categories: nginx
 
 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113204020.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220113204020.png)
 
 ## 1,前提
 
@@ -166,8 +166,8 @@ fi
 
 ## 5  输入 ip a查看虚拟地址映射
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113221746.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220113221746.png)
 
 ## 6 windows上访问测试：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113221820.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220113221820.png)

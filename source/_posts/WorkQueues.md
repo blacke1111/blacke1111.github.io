@@ -55,7 +55,7 @@ public class Woker01 {
 }
 ```
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220106174234.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220106174234.png)
 
 勾选上面的箭头所指选项，就可以启动2个类并行。
 
@@ -106,7 +106,7 @@ public class Woker01 {
 
 如果消费者由于某些原因失去连接(其通道已关闭，连接已关闭或 TCP 连接丢失)，导致消息未发送 ACK 确认，RabbitMQ 将了解到消息未完全处理，并将对其重新排队。如果此时其他消费者可以处理，它将很快将其重新分发给另一个消费者。这样，即使某个消费者偶尔死亡，也可以确保不会丢失任何消息
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220106183854.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220106183854.png)
 
 **生产者:**
 
@@ -202,13 +202,13 @@ public class Woker03 {
  channel.queueDeclare(QUEUE_NAME, false, false, false, null);
 ```
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220106193850.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220106193850.png)
 
 但是需要注意的就是如果之前声明的队列不是持久化的，需要把原先队列先删除，或者重新创建一个持久化的队列，不然就会出现错误
 
 以下为控制台中持久化与非持久化队列的 UI 显示区、
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220106193912.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220106193912.png)
 
 这个时候即使重启 rabbitmq 队列也依然存在
 
@@ -216,7 +216,7 @@ public class Woker03 {
 
 要想让消息实现持久化需要在消息生产者修改代码，MessageProperties.PERSISTENT_TEXT_PLAIN 添加这个属性。
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220106193955.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220106193955.png)
 
 将消息标记为持久化并不能完全保证不会丢失消息。尽管它告诉 RabbitMQ 将消息保存到磁盘，但是这里依然存在当消息刚准备存储在磁盘的时候 但是还没有存储完，消息还在缓存的一个间隔点。此时并没有真正写入磁盘。持久性保证并不强，但是对于我们的简单任务队列而言，这已经绰绰有余了.
 
@@ -226,9 +226,9 @@ public class Woker03 {
 
 我们可以设置参数 channel.basicQos(1);
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220106194131.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220106194131.png)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220106194218.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220106194218.png)
 
 意思就是如果这个任务我还没有处理完或者我还没有应答你，你先别分配给我，我目前只能处理一个任务，然后 rabbitmq 就会把该任务分配给没有那么忙的那个空闲消费者，当然如果所有的消费者都没有完成手上任务，队列还在不停的添加新任务，队列有可能就会遇到队列被撑满的情况，这个时候就只能添加新的 worker 或者改变其他存储任务的策略。
 
@@ -238,4 +238,4 @@ public class Woker03 {
 
 本身消息的发送就是异步发送的，所以在任何时候，channel 上肯定不止只有一个消息另外来自消费者的手动确认本质上也是异步的。因此这里就存在一个未确认的消息缓冲区，因此希望开发人员能**限制此缓冲区的大小，以避免缓冲区里面无限制的未确认消息问题。**这个时候就可以通过使用 basic.qos 方法设置“预取计数”值来完成的。**该值定义通道上允许的未确认消息的最大数量**。一旦数量达到配置的数量，RabbitMQ 将停止在通道上传递更多消息，除非至少有一个未处理的消息被确认，例如，假设在通道上有未确认的消息 5、6、7，8，并且通道的预取计数设置为 4，此时 RabbitMQ 将不会在该通道上再传递任何消息，除非至少有一个未应答的消息被 ack。比方说 tag=6 这个消息刚刚被确认 ACK，RabbitMQ 将会感知这个情况到并再发送一条消息。消息应答和 QoS 预取值对用户吞吐量有重大影响。通常，增加预取将提高向消费者传递消息的速度。**虽然自动应答传输消息速率是最佳的，但是，在这种情况下已传递但尚未处理的消息的数量也会增加，从而增加了消费者的 RAM 消耗**(随机存取存储器)应该小心使用具有无限预处理的自动确认模式或手动确认模式，消费者消费了大量的消息如果没有确认的话，会导致消费者连接节点的内存消耗变大，所以找到合适的预取值是一个反复试验的过程，不同的负载该值取值也不同 100 到 300 范围内的值通常可提供最佳的吞吐量，并且不会给消费者带来太大的风险。预取值为 1 是最保守的。当然这将使吞吐量变得很低，特别是消费者连接延迟很严重的情况下，特别是在消费者连接等待时间较长的环境中。对于大多数应用来说，稍微高一点的值将是最佳的。
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220106200136.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220106200136.png)

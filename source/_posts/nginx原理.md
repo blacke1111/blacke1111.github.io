@@ -4,11 +4,13 @@ date: 2022-01-13 22:42:55
 categories: nginx
 ---
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113224412.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220113224412.png)
 
 **2worker如何进行工作的**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220113224439.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220113224439.png)
 
 3、一个 master 和多个 woker 有好处
 **（1）可以使用 nginx –s reload 热部署，利用 nginx 进行热部署操作**

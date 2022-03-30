@@ -40,7 +40,7 @@ Ribbon就属于进程内LB，它只是一个类库，集成于消费方进程，
 
 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220117200616.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220117200616.png)
 
 Ribbon在工作时分成两步
 第一步先选择 EurekaServer ,它优先选择在同一个区域内负载较少的server.
@@ -96,7 +96,7 @@ getForEntity：返回对象为responseEntity对象，包含了响应中的一些
 
 https://docs.spring.io/spring-cloud-commons/docs/current/reference/html/#switching-between-the-load-balancing-algorithms
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220117220909.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220117220909.png)
 
 ![image-20220117213341739](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20220117213341739.png)
 
@@ -150,15 +150,15 @@ public class OrderMain80 {
 
 使用：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220117222317.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220117222317.png)
 
 同样遵守：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220117220909.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220117220909.png)
 
 步骤一：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220117213338.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220117213338.png)
 
 ```java
 public class MyselfRule {

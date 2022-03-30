@@ -7,7 +7,7 @@ categories: java基础
 
 # ThreadPoolExecutor
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211127232143.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211127232143.png)
 
 ## 线程池状态
 
@@ -63,7 +63,7 @@ public ThreadPoolExecutor(int corePoolSize,
 
 工作方法：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211127233007.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211127233007.png)
 
 * 线程池中刚开始没有线程，当一个任务提交给线程池后，线程池会创建一个新线程来执行任务。
 
@@ -100,7 +100,7 @@ public ThreadPoolExecutor(int corePoolSize,
 
   keepAliveTime 和 unit 来控制。
 
-  ![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211127233317.png)
+  ![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211127233317.png)
 
 根据这个构造方法，JDK Executors 类中提供了众多工厂方法来创建各种用途的线程池
 

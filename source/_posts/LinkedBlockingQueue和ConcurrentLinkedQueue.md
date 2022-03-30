@@ -28,15 +28,18 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
 
 初始化链表 last = head = new Node<E>(null); Dummy 节点用来占位，item 为 null
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211202213830.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211202213830.png)
 
 当一个节点入队 last = last.next = node;
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211202213854.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211202213854.png)
 
 再来一个节点入队 last = last.next = node;
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211202213954.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211202213954.png)
 
 ```java
 Node<E> h = head;
@@ -48,19 +51,23 @@ return x;
 
 **h = head**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211202214029.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211202214029.png)
 
 **first = h.next**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211202214050.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211202214050.png)
 
 **h.next = h**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211202214108.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211202214108.png)
 
 **head = first**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211202214125.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211202214125.png)
 
 ```java
 E x = first.item;
@@ -68,7 +75,8 @@ first.item = null;
 return x;
 ```
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211202214212.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211202214212.png)
 
 
 
@@ -188,7 +196,8 @@ ConcurrentLinkedQueue 将 SocketChannel 给 Poller 使用
 
 tomcat:
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211202214542.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211202214542.png)
 
 # CopyOnWriteArraySet 
 
@@ -231,9 +240,11 @@ public void forEach(Consumer<? super E> action) {
 
 **get** **弱一致性**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211202215411.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211202215411.png)
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20211202215426.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20211202215426.png)
 
 > 不容易测试，但问题确实存在
 

@@ -36,7 +36,7 @@ consul agent -dev
 
 ## idea创建一个服务模块
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220117191802.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220117191802.png)
 
 ## 配置pom：
 
@@ -111,7 +111,8 @@ public class ConsulMain8006 {
 
 ## 效果图：
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220117192022.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220117192022.png)
 
 
 
@@ -130,7 +131,8 @@ CA - 单点集群，满足一致性，可用性的系统，通常在可扩展性
 CP - 满足一致性，分区容忍必的系统，通常性能不是特别高。
 AP - 满足可用性，分区容忍性的系统，通常可能对一致性要求低一些。
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220117194605.png)
+![](
+https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220117194605.png)
 
 **AP架构**
 当网络分区出现后，为了保证可用性，系统B可以返回旧值，保证系统的可用性。
