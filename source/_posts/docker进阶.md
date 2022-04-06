@@ -1174,7 +1174,7 @@ ENTRYPOINT ["java","-jar","app.jar"]
 [root@hadoop01 idea]# ls
 demo-0.0.1-SNAPSHOT.jar  Dockerfile
 #生成镜像
-docker build -t build zhang666 .
+docker build -t zhang666 .
 
 #运行镜像
 docker run  -d -P --name springboot-test zhang666

@@ -48,7 +48,7 @@ Netty 在 Java 网络应用框架中的地位就好比：Spring 框架在 JavaEE
 
 
 
-### 1.4 Netty 的优势
+### Netty 的优势
 
 * Netty vs NIO，工作量大，bug 多
   * 需要自己构建协议
