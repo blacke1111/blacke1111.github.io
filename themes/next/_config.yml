@@ -182,6 +182,7 @@ toc:
   # If true, all words will placed on next lines if header width longer then sidebar width.
   wrap: true
 
+
 # Creative Commons 4.0 International License.
 # http://creativecommons.org/
 # Available: by | by-nc | by-nc-nd | by-nc-sa | by-nd | by-sa | zero
@@ -568,7 +569,14 @@ firestore:
 # Get more information on http://ibruce.info/2015/04/04/busuanzi/
 busuanzi_count:
   # count values only if the other configs are false
-  enable: false
+  enable: true
+  total_visitors: true   #统计访客数
+  total_visitors_icon: user
+  total_views: true    #统计访问数
+  total_views_icon: eye
+  post_views: true   #统计文章阅读数
+  post_views_icon: eye
+  
   # custom uv span for the whole site
   site_uv: true
   site_uv_header: <i class="fa fa-user"></i>
