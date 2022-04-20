@@ -261,7 +261,7 @@ docker stats查看容器占用情况：
 
 ![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220228191852.png)
 
-## **InfluxDB：**
+## InfluxDB：
 
 ![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220228191953.png)
 

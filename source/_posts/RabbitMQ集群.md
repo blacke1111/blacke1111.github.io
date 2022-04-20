@@ -69,17 +69,17 @@ categories: RabbitMQ
 
 **2.随便找一个节点添加 policy**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220110214407.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220110214407.png)
 
 **3.在 node1 上创建一个队列发送一条消息，队列存在镜像队列**
 
  
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220110214428.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220110214428.png)
 
 4.停掉 node1 之后发现 node2 成为镜像队列
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220110214519.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220110214519.png)
 
 5.就算整个集群只剩下一台机器了 依然能消费队列里面的消息说明队列里面的消息被镜像队列传递到相应机器里面了
 
@@ -171,7 +171,7 @@ stream {
 (broker 北京)，(broker 深圳)彼此之间相距甚远，网络延迟是一个不得不面对的问题。有一个在北京的业务(Client 北京) 需要连接(broker 北京)，向其中的交换器 exchangeA 发送消息，此时的网络延迟很小，(Client 北京)可以迅速将消息发送至 exchangeA 中，就算在开启了 publisherconfirm 机制或者事务机制的情况下，也可以迅速收到确认信息。此时又有个在深圳的业务(Client 深圳)需要向 exchangeA 发送消息，那么(Client 深圳) (broker 北京)之间有很大的网络延迟，(Client 深圳) 将发送消息至 exchangeA 会经历一定的延迟，尤其是在开启了 publisherconfirm 机制或者事务机制的情况下，(Client 深圳) 会等待很长的延迟时间来接收(broker 北京)的确认信息，进而必然造成这条发送线程的性能降低，甚至造成一定程度上的阻塞。
 将业务(Client 深圳)部署到北京的机房可以解决这个问题，但是如果(Client 深圳)调用的另些服务都部署在深圳，那么又会引发新的时延问题，总不见得将所有业务全部部署在一个机房，那么容灾又何以实现？这里使用 Federation 插件就可以很好地解决这个问题
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220110214845.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220110214845.png)
 
 ## **搭建步骤** 
 
@@ -188,11 +188,11 @@ rabbitmq-plugins enable rabbitmq_federation_management
 
 **4.添加 policy**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220110214925.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220110214925.png)
 
 5.成功的前提
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220110215101.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220110215101.png)
 
 生产者：
 
@@ -256,7 +256,7 @@ public class Consumer {
 
 ## **搭建步骤** 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220110215220.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220110215220.png)
 
 **2.添加 upstream(同上)**  已经配置了node1为上游
 
@@ -334,7 +334,7 @@ public class Consumer2 {
 
 ```
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220110215940.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220110215940.png)
 
 这里生产者先生产消息到队列中，再启动消费者node2，就可以实现联邦队列，消费者可以从他的上游中相应队列中获取消息。
 
@@ -353,9 +353,9 @@ rabbitmq-plugins enable rabbitmq_shovel_management
 
 **2.原理图(在源头发送的消息直接回进入到目的地队列)**
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220110222502.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220110222502.png)
 
 **3.添加 shovel 源和目的地** 
 
-![](https://gitee.com/haoyumaster/imageBed/raw/master/imgs/20220110222644.png)
+![](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/20220110222644.png)
 
