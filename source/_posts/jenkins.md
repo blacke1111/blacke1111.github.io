@@ -101,7 +101,9 @@ cd {你的Jenkins工作目录}/updates #进入更新配置位置
 
 在目录下执行如下命令：
 
+```
 sed -i 's/http:\/\/updates.jenkins-ci.org\/download/https:\/\/mirrors.tuna.tsinghua.edu.cn\/jenkins/g' default.json && sed -i 's/http:\/\/www.google.com/https:\/\/www.baidu.com/g' default.json
+```
 
 这是直接修改的配置文件，如果前边Jenkins用sudo启动的话，那么这里的两个sed前均需要加上sudo重启Jenkins，安装插件
 

@@ -132,7 +132,7 @@ scheme: Pisces
 # Value before `||` delimeter is the target permalink.
 # Value after `||` delimeter is the name of FontAwesome icon. If icon (with or without delimeter) is not specified, globe icon will be loaded.
 social:
-  GitHub: https://github.com/blacke1111 ||github
+  GitHub: https://github.com/zhanghaoyu0724 ||github
   #E-Mail: https://1395430748@qq.com || envelope
   #Google: https://plus.google.com/yourname || google
   #Twitter: https://twitter.com/yourname || twitter

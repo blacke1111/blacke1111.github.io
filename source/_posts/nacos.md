@@ -42,7 +42,7 @@ shutdown.cmd
 
 ## 构建生产者模块：
 
-![image-20220124203303880](C:\Users\ASUS\AppData\Roaming\Typora\typora-user-images\image-20220124203303880.png)
+![image-20220124203303880](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220124203303880.png)
 
 pom：
 

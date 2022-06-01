@@ -30,7 +30,7 @@ show variables like '%char%';
 
 ![image-20220404192215776](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220404192215776.png)
 
-8.7.27下:
+5.7.27下:
 
 ![image-20220404192235498](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220404192235498.png)
 
