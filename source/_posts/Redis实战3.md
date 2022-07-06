@@ -406,3 +406,198 @@ Feed流中的数据会不断更新，所以数据的角标也在变化，因此�
 # 附近商户
 
 ## 附近商户搜索
+
+第一步：创建测试类首先把店铺经纬度信息存入redis
+
+```java
+@Test
+    void loadShopData(){
+        //1 查询店铺信息
+        List<Shop> list = shopService.list();
+        //2 把店铺分组，按照typeId分组，id一致的放到一个集合
+
+        Map<Long, List<Shop>> hashMap = list.stream().collect(Collectors.groupingBy(Shop::getTypeId));
+        for (Map.Entry<Long, List<Shop>> entry : hashMap.entrySet()) {
+            //1 获取类型id
+            Long typeId = entry.getKey();
+            //2 获取同类型的集合
+            List<Shop> shopList = entry.getValue();
+            String key = SHOP_GEO_KEY + typeId;
+
+            List<RedisGeoCommands.GeoLocation<String>> locations=new ArrayList<>();
+            for (Shop shop : shopList) {
+//                stringRedisTemplate.opsForGeo().add(key,new Point(shop.getX(),shop.getY()),shop.getId().toString());
+                locations.add(new RedisGeoCommands.GeoLocation<>(shop.getId().toString(),new Point(shop.getX(),shop.getY())));
+            }
+            stringRedisTemplate.opsForGeo().add(key,locations);
+        }
+        //3 分批完成写入Redis
+    }
+```
+
+
+
+修改pom文件 redis 依赖版本 来支持6.2提供的GEOSEARCH
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-redis</artifactId>
+        </exclusion>
+        <exclusion>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+<dependency>
+    <groupId>org.springframework.data</groupId>
+    <artifactId>spring-data-redis</artifactId>
+    <version>2.6.2</version>
+</dependency>
+<dependency>
+    <groupId>io.lettuce</groupId>
+    <artifactId>lettuce-core</artifactId>
+    <version>6.1.6.RELEASE</version>
+</dependency>
+```
+
+
+
+```java
+@Override
+public Result queryShopByType(Integer typeId, Integer current, Double x, Double y) {
+
+    //1 判断是否需要根据坐标查询
+    if (x==null || y==null){
+        Page<Shop> page = query().eq("type_id", typeId)
+            .page(new Page<>(current, SystemConstants.DEFAULT_PAGE_SIZE));
+        return Result.ok(page.getRecords());
+    }
+    //2 计算分页参数
+    int from=(current-1)* SystemConstants.DEFAULT_PAGE_SIZE;
+    int end=(current)*SystemConstants.DEFAULT_PAGE_SIZE;
+
+    //3 查询redis，按照距离排序，分页 shopId,distance
+
+    //Distance默认 单位米 limit 只能从0 到end 要我们自己截取 从from 到end
+    GeoResults<RedisGeoCommands.GeoLocation<String>> results = redisTemplate.opsForGeo()
+        .search(
+        SHOP_GEO_KEY + typeId,
+        GeoReference.fromCoordinate(new Point(x, y)),
+        new Distance(5000),
+        RedisGeoCommands.GeoSearchCommandArgs.newGeoSearchArgs().includeDistance().limit(end)
+    );
+    if (results==null){
+        return Result.ok(Collections.emptyList());
+    }
+    List<GeoResult<RedisGeoCommands.GeoLocation<String>>> list = results.getContent();
+    if (list.size()<=from){
+        return Result.ok(Collections.emptyList());
+    }
+    // 截取 从 from 到 end
+    //        List<GeoResult<RedisGeoCommands.GeoLocation<String>>> subList = list.subList(from, list.size());
+
+    ArrayList<Long> ids = new ArrayList<>(list.size());
+    HashMap<String, Distance> distanceMap = new HashMap<>();
+
+    //4 解析出id
+    list.stream().skip(from).forEach(result ->{
+        // 获取店铺id
+        String shopIdStr = result.getContent().getName();
+        ids.add(Long.valueOf(shopIdStr));
+        Distance distance = result.getDistance();
+        distanceMap.put(shopIdStr,distance);
+    });
+    //5 根据id查询Shop
+    String idStr = StrUtil.join(",", ids);
+    List<Shop> shopList = query().in("id", ids).last("ORDER BY FIELD(id," + idStr + ")").list();
+    //设置店铺的距离
+    for (Shop shop : shopList) {
+        shop.setDistance(distanceMap.get(shop.getId().toString()).getValue());
+    }
+    //6 返回
+    return Result.ok(shopList);
+}
+```
+
+# 用户签到
+
+节省空间 使用一个bit位表示一天 节省空间
+
+![image-20220611162520470](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220611162520470.png)
+
+![image-20220611165422656](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220611165422656.png)
+
+```java
+@Override
+    public Result sign() {
+        //1 获取当前登陆的用户
+        Long userId = UserHolder.getUser().getId();
+        //2 获取 日期
+        LocalDateTime now = LocalDateTime.now();
+        //3 拼接key
+        String keySuffix = now.format(DateTimeFormatter.ofPattern("yyyyMM"));
+        String key=USER_SIGN_KEY+keySuffix;
+        //4 获取今天是本月的第几天
+        int dayOfMonth = now.getDayOfMonth();
+        stringRedisTemplate.opsForValue().setBit(key,dayOfMonth-1,true);
+        //5 写入redis setBit key offset 1
+        return Result.ok();
+    }
+
+    private User createUserWithPhone(String phone) {
+        User user = new User();
+        user.setPhone(phone);
+        user.setNickName(USER_NICK_NAME_PREFIX+RandomUtil.randomString(10));
+        baseMapper.insert(user);
+        return user;
+    }
+```
+
+# 连续签到
+
+![image-20220611171020622](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220611171020622.png)
+
+```java
+@Override
+public Result signCount() {
+    //1 获取当前登陆的用户
+    Long userId = UserHolder.getUser().getId();
+    //2 获取 日期
+    LocalDateTime now = LocalDateTime.now();
+    //3 拼接key
+    String keySuffix = now.format(DateTimeFormatter.ofPattern("yyyyMM"));
+    String key=USER_SIGN_KEY+keySuffix;
+    //4 获取今天是本月的第几天
+    int dayOfMonth = now.getDayOfMonth();
+    //获取本月截至今天为止的签到记录 , 返回的是一个10进制的数据
+    List<Long> result = stringRedisTemplate.opsForValue().bitField(key,
+                                                                   BitFieldSubCommands.create().get(BitFieldSubCommands.BitFieldType.unsigned(dayOfMonth)).valueAt(0));
+
+    if (result==null|| result.isEmpty()){
+        //没有任何结果
+        return Result.ok(0);
+    }
+    Long num = result.get(0);
+    if (num ==null|| num==0){
+        return Result.ok(0);
+    }
+    int countDay=0;
+    while (num>0){
+        if ( (num & 1) ==1){
+            countDay++;
+        }else {
+            break;
+        }
+        num=num>>>1;
+    }
+
+    return Result.ok(countDay);
+}
+```
+

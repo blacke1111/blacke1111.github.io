@@ -815,6 +815,7 @@ return 0
             return Result.fail(r==1?"库存不足！":"您已经下单成功!");
         }
        // 2.2 为0 有购买资格，把下单信息保存到阻塞队列
+        //生成订单号
         long orderId = redisWorker.nextId("order");
         //7 创建订单
         VoucherOrder voucherOrder = new VoucherOrder();
@@ -826,7 +827,6 @@ return 0
         voucherOrder.setVoucherId(voucherId);
         //3. 返回订单id
         orderTasks.add(voucherOrder);
-        proxy = (IVoucherOrderService)AopContext.currentProxy();
        return  Result.ok(orderId);
     }
 	//异步创建订单任务 再类初始化之后交给线程池执行
@@ -1070,8 +1070,6 @@ STREAM类型消息队列的XREADGROUP命令特点：
 ```
 xgroup create stream.orders g1 0 MKstream
 ```
-
-
 
 ② 修改之前的秒杀下单Lua脚本，在认定有抢购资格后，直接向stream.orders中添加消息，内容包含voucherId、userId、orderId
 ③ 项目启动时，开启一个线程任务，尝试获取stream.orders中的消息，完成下单

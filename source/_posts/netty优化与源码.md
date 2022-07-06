@@ -1355,7 +1355,7 @@ private AbstractChannelHandlerContext findContextInbound(int mask) {
 
 
 
-NioEventLoop中有2个selecot 一个原始的一个netty改过的
+NioEventLoop中有2个selector一个原始的一个netty改过的
 
 主要改变是把原生的selectedKeys的数据结构的set的hash实现改成了数组 提高效率
 

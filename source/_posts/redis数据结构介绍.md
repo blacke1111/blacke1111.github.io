@@ -276,3 +276,42 @@ GEO就是Geolocation的简写形式，代表地理坐标。Redis在3.2版本中�
   功能
 * GEOSEARCHSTORE：与GEOSEARCH功能一致，不过可以把结果存储到一个指定的key。 6.2.新功能
 
+
+
+## BitMap 数据结构
+
+Redis中是利用string类型数据结构实现BitMap，因此最大上限是512M，转换为bit则是 2^32个bit位。
+BitMap的操作命令有：
+
+* SETBIT：向指定位置（offset）存入一个0或1
+* GETBIT ：获取指定位置（offset）的bit值
+* BITCOUNT ：统计BitMap中值为1的bit位的数量
+* BITFIELD ：操作（查询、修改、自增）BitMap中bit数组中的指定位置（offset）的值
+* BITFIELD_RO ：获取BitMap中bit数组，并以十进制形式返回
+* BITOP ：将多个BitMap的结果做位运算（与 、或、异或）
+* BITPOS ：查找bit数组中指定范围内第一个0或1出现的位置
+
+![image-20220611164142503](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220611164142503.png)
+
+第一位 从 左边算起 ，所以是1
+
+```shell
+# u3 表示 无符号 查询3位bit 从第0位开始（按从左到右的顺序）
+BITFIELD  get bm1 u3 0
+结果 ：6 二进制位:110
+```
+
+
+
+## HyperLogLog用法
+
+首先我们搞懂两个概念：
+
+* UV：全称Unique Visitor，也叫**独立访客量**，是指通过互联网访问、浏览这个网页的自然人。1天内同一个用户多次
+  访问该网站，只记录1次。
+* PV：全称Page View，也叫**页面访问量或点击量**，用户每访问网站的一个页面，记录1次PV，用户多次打开页面，则记
+  录多次PV。往往用来衡量网站的流量。
+
+UV统计在服务端做会比较麻烦，因为要判断该用户是否已经统计过了，需要将统计过的用户信息保存。但是如果每个访问的用户都保存到Redis中，数据量会非常恐怖。
+
+![image-20220613123915888](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220613123915888.png)

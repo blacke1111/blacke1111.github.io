@@ -216,7 +216,12 @@ systemctl stop redis
 systemctl restart redis
 # 查看状态
 systemctl status redis
+
+#以上命令 停止redis 默认保存redis RDB文件位置
+RDB 文件保存在目录 /下
 ```
+
+
 
 
 

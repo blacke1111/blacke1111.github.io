@@ -1,7 +1,7 @@
 ---
-title: Spring Sercurity
+title: Spring Security
 date: 2022-03-28 21:23:52
-categories: SpringSercurity
+categories: SpringSecurity
 ---
 
 # 1、框架介绍
