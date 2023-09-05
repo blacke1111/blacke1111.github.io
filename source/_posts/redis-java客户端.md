@@ -1,7 +1,7 @@
 ---
 title: redis java客户端
 date: 2022-05-16 17:22:42
-categories: 
+categories: Redis
 ---
 
 

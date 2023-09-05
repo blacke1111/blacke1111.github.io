@@ -12,11 +12,11 @@ categories: canal
 
 tag：上次博客已经是20天之前了 ，这20天基本就是在天天跟着网课做项目，总结下来，学到的东西还是挺多的，下面这个技术就是这个项目中用到的一种， 另外今天发现，我的图床用不了了，😔 gitee添加了防盗链，只好把图床转移到阿里云上了，使用和之前gitee差不多，就是改博客有点浪费时间。。。 
 
-# 1、应用场景
+# 应用场景
 
 在前面的统计分析功能中，我们采取了服务调用获取统计数据，这样耦合度高，效率相对较低，目前我采取另一种实现方式，通过实时同步数据库表的方式实现，例如我们要统计每天注册与登录人数，我们只需把会员表同步到统计库中，实现本地统计就可以了，这样效率更高，耦合度更低，Canal就是一个很好的数据库同步工具。canal是阿里巴巴旗下的一款开源项目，纯Java开发。基于数据库增量日志解析，提供增量数据订阅&消费，目前主要支持了MySQL。
 
-# 2、Canal环境搭建
+# Canal环境搭建
 
 搭建数据库和表
 
@@ -73,7 +73,7 @@ GRANT SHOW VIEW, SELECT, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'canal'
 FLUSH PRIVILEGES;
 ```
 
-# 3、下载安装Canal服务
+# 下载安装Canal服务
 
 下载地址：
 https://github.com/alibaba/canal/releases
@@ -82,16 +82,16 @@ https://github.com/alibaba/canal/releases
 
 canal1.1.4 百度网盘地址：
 
-链接：https://pan.baidu.com/s/1_W_VZwNg1VHh8O4x9dhsLA 
+链接：https://pan.baidu.com/s/1s8rn6ewgtBZkcvb9sOvCRg 
 提取码：yyds
 
-## （1）下载之后，放到目录中，解压文件
+## 下载之后，放到目录中，解压文件
 
 cd /usr/local/canal
 canal.deployer-1.1.4.tar.gz
 tar zxvf canal.deployer-1.1.4.tar.gz
 
-## （2）修改配置文件
+## 修改配置文件
 
 vi conf/example/instance.properties
 
@@ -119,17 +119,17 @@ mysql 数据解析关注的表，Perl正则表达式.
 注意：此过滤条件只针对row模式的数据有效(ps. mixed/statement因为不解析sql，所以无法准确提
 取tableName进行过滤)
 
-## （3）进入bin目录下启动
+## 进入bin目录下启动
 
 sh bin/startup.sh
 
-# 二、创建canal_client模块
+# 创建canal_client模块
 
-## 1、在guliedu_parent下创建canal_client模块
+## 在guliedu_parent下创建canal_client模块
 
 ![image-20220326184914617](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220326184914617.png)
 
-## 2、引入相关依赖
+## 引入相关依赖
 
 ```xml
 <dependencies>
@@ -162,7 +162,7 @@ sh bin/startup.sh
     </dependencies>
 ```
 
-## 3、创建application.properties配置文件
+## 创建application.properties配置文件
 
 ```properties
 # 服务端口
@@ -178,7 +178,7 @@ spring.datasource.username=root
 spring.datasource.password=root
 ```
 
-## 4、编写canal客户端类
+## 编写canal客户端类
 
 ```java
 package com.atguigu.canal.client;
@@ -431,3 +431,158 @@ public class CanalApplication  implements CommandLineRunner {
 ```
 
 然后测试在我们虚拟机的数据库添加 一条数据 可以看到在java中连接的数据库会自动同步linux数据库的数据
+
+
+
+# 第二种方式安装教程：
+
+## 启MySQL主从
+
+Canal是基于MySQL的主从同步功能，因此必须先开启MySQL的主从功能才可以。
+
+这里以之前用Docker运行的mysql为例：
+
+### 开启binlog
+
+打开mysql容器挂载的日志文件，我的在`/tmp/mysql/conf`目录:
+
+![image-20210813153241537](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20210813153241537.png)
+
+修改文件：
+
+```sh
+vi /tmp/mysql/conf/my.cnf
+```
+
+添加内容：
+
+```ini
+log-bin=/var/lib/mysql/mysql-bin
+binlog-do-db=heima
+```
+
+配置解读：
+
+- `log-bin=/var/lib/mysql/mysql-bin`：设置binary log文件的存放地址和文件名，叫做mysql-bin
+- `binlog-do-db=heima`：指定对哪个database记录binary log events，这里记录heima这个库
+
+最终效果：
+
+```ini
+[mysqld]
+skip-name-resolve
+character_set_server=utf8
+datadir=/var/lib/mysql
+server-id=1000
+log-bin=/var/lib/mysql/mysql-bin
+binlog-do-db=heima
+```
+
+
+
+### 设置用户权限
+
+接下来添加一个仅用于数据同步的账户，出于安全考虑，这里仅提供对heima这个库的操作权限。
+
+```mysql
+create user canal@'%' IDENTIFIED by 'canal';
+GRANT SELECT, REPLICATION SLAVE, REPLICATION CLIENT,SUPER ON *.* TO 'canal'@'%' identified by 'canal';
+FLUSH PRIVILEGES;
+```
+
+
+
+重启mysql容器即可
+
+```
+docker restart mysql
+```
+
+
+
+测试设置是否成功：在mysql控制台，或者Navicat中，输入命令：
+
+```
+show master status;
+```
+
+![image-20200327094735948](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20200327094735948.png) 
+
+
+
+## 安装Canal
+
+
+
+### 创建网络
+
+我们需要创建一个网络，将MySQL、Canal、MQ放到同一个Docker网络中：
+
+```sh
+docker network create heima
+```
+
+让mysql加入这个网络：
+
+```sh
+docker network connect heima mysql
+```
+
+
+
+
+
+### 安装Canal
+
+链接：https://pan.baidu.com/s/1wClehep0PndVEFFllu0MDg 
+提取码：yyds
+
+![image-20210813161804292](https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20210813161804292.png) 
+
+可以上传到虚拟机，然后通过命令导入：
+
+```
+docker load -i canal.tar
+```
+
+
+
+然后运行命令创建Canal容器：
+
+```sh
+docker run -p 11111:11111 --name canal \
+-e canal.destinations=heima \
+-e canal.instance.master.address=mysql:3306  \
+-e canal.instance.dbUsername=canal  \
+-e canal.instance.dbPassword=canal  \
+-e canal.instance.connectionCharset=UTF-8 \
+-e canal.instance.tsdb.enable=true \
+-e canal.instance.gtidon=false  \
+-e canal.instance.filter.regex=heima\\..* \
+--network heima \
+-d canal/canal-server:v1.1.5
+```
+
+
+
+说明:
+
+- `-p 11111:11111`：这是canal的默认监听端口
+- `-e canal.instance.master.address=mysql:3306`：数据库地址和端口，如果不知道mysql容器地址，可以通过`docker inspect 容器id`来查看
+- `-e canal.instance.dbUsername=canal`：数据库用户名
+- `-e canal.instance.dbPassword=canal` ：数据库密码
+- `-e canal.instance.filter.regex=`：要监听的表名称
+
+表名称监听支持的语法：
+
+```
+mysql 数据解析关注的表，Perl正则表达式.
+多个正则之间以逗号(,)分隔，转义符需要双斜杠(\\) 
+常见例子：
+1.  所有表：.*   or  .*\\..*
+2.  canal schema下所有表： canal\\..*
+3.  canal下的以canal打头的表：canal\\.canal.*
+4.  canal schema下的一张表：canal.test1
+5.  多个规则组合使用然后以逗号隔开：canal\\..*,mysql.test1,mysql.test2 
+```
+

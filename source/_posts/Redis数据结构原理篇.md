@@ -1,7 +1,7 @@
 ---
 title: Redis数据结构原理篇
 date: 2022-06-27 13:53:14
-tags: Redis
+categories: Redis
 ---
 
 # 动态字符串SDS

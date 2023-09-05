@@ -1,7 +1,7 @@
 ---
 title: Redis原理篇
 date: 2022-06-28 21:25:08
-tags: Redis
+categories: Redis
 ---
 
 # 用户空间和内核空间

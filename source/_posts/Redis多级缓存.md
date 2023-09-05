@@ -1,7 +1,7 @@
 ---
 title: Redis多级缓存
 date: 2022-06-24 15:28:18
-tags: Redis
+categories: Redis
 ---
 
 # 什么是多级缓存
@@ -599,7 +599,7 @@ OpenResty中提供了一些API用来获取不同类型的前端请求参数：
 
 1）获取商品id
 
-修改`/usr/loca/openresty/nginx/nginx.conf`文件中监听/api/item的代码，利用正则表达式获取ID：
+修改`/usr/local/openresty/nginx/nginx.conf`文件中监听/api/item的代码，利用正则表达式获取ID：
 
 ```nginx
 location ~ /api/item/(\d+) {

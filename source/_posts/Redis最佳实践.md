@@ -1,7 +1,7 @@
 ---
 title: Redis最佳实践
-date: 2022-06-26 16:55:29
-tags: Redis
+date: 2023-02-26 16:55:29
+categories: Redis
 ---
 
 # 优雅的key结构
