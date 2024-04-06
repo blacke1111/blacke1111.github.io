@@ -33,6 +33,41 @@ categories: Websocket
 
 ​                      1、STOMP Simple (or Streaming) Text Orientated Messaging Protocol
 
-​                      它定义了可互操作的连线格式，以便任何可用的STOMP客户端都可以与任何STOMP消息代理进行通信，以在语言和平台之间提供简单而广泛的消息互操作性（归纳一句话：是一个简单的面向文本的消息传递协议。）
+​                      它定义了可互操作的连线格式，以便任何可用的STOMP客户端都可以与任何STOMP消息代理进行通信，以在语言和平台之间提供简单而广泛的消息互操作性（归纳一句话：是一个简单的面向文本的消息传递协)
 
 ​		学习资料:https://stomp-js.github.io/stomp-websocket/codo/class/Client.html#connect-dynamic
+
+
+
+
+
+```java
+
+@Configuration
+@EnableWebSocket
+public class WebSocketConfig  implements WebSocketMessageBrokerConfigurer {
+    /**
+     * 注册端点，发布或者订阅消息的时候需要连接端点
+     * @param registry
+     */
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        //该方法相当于一个基站
+        registry.addEndpoint("/endpoint-websocket").setAllowedOrigins("*").withSockJS();
+    }
+
+    /**
+     * 配置消息代理中介
+     * enableSimpleBroker 服务端推送给客户端的路径前缀 （服务端推送数据给客户端是一对多    服务端@sendTO必须指定完整url）
+     * setApplicationDestinationPrefixes 客户端推送给服务端的前缀  (客戶端推送消息給服务端是多对一  客户端请求url前缀必须指定，并且要在ApplicationDestinationPrefixes中配置)
+     * @param registry
+     */
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.enableSimpleBroker("/topic","/chat");
+        registry.setApplicationDestinationPrefixes("/app");
+    }
+}
+
+```
+
