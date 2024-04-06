@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="zhy, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="优惠卷秒杀 全局唯一id ID的组成部分：  符号位：1bit，永远为0 时间戳：31bit，以秒为单位，可以使用69年 序列号：32bit，秒内的计数器，支持每秒产生2^32个不同ID 对应代码  12345678910111213141516171819202122private static  final  long BEGIN_TIMESTAMP&#x3D;1640995200L;private s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 秒杀业务实战">
+<meta property="og:url" content="https://zhanghaoyu0724.github.io/2022/05/19/Redis%E5%AE%9E%E6%88%982/index.html">
+<meta property="og:site_name" content="蓝天の博客">
+<meta property="og:description" content="优惠卷秒杀 全局唯一id ID的组成部分：  符号位：1bit，永远为0 时间戳：31bit，以秒为单位，可以使用69年 序列号：32bit，秒内的计数器，支持每秒产生2^32个不同ID 对应代码  12345678910111213141516171819202122private static  final  long BEGIN_TIMESTAMP&#x3D;1640995200L;private s">
+<meta property="og:locale">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521142801253.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521151308657.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521151749737.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521152038846.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521153419943.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521160835557.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521160846790.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521162519399.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521163610118.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521173010163.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521175240533.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220523140003619.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220523141414893.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220523142226655.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220523143217464.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220523143245966.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220523150103686.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524163011905.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524163508882.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524163742049.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524164701439.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524164919728.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524164522912.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524165311770.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524165344696.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524172217539.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524172750043.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524172842956.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524173634837.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524192634929.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524192723175.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524193505920.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525144650380.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525151831375.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525152638028.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525154254793.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525154306147.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525154835352.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525154826239.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525155512816.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525160058405.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525162953985.png">
+<meta property="og:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525163254215.png">
+<meta property="article:published_time" content="2022-05-19T14:01:21.000Z">
+<meta property="article:modified_time" content="2024-04-06T11:46:12.342Z">
+<meta property="article:author" content="Zhang Hao Hu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521142801253.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":8,"b2t":true,"scrollpercent":true,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://zhanghaoyu0724.github.io/2022/05/19/Redis实战2/"/>
+
+
+
+
+
+  <title>Redis 秒杀业务实战 | 蓝天の博客</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">蓝天の博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://zhanghaoyu0724.github.io/2022/05/19/Redis%E5%AE%9E%E6%88%982/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="张浩宇">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蓝天の博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis 秒杀业务实战</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2022-05-19T22:01:21+08:00">
+                2022-05-19
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于&#58;</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2024-04-06T19:46:12+08:00">
+                2024-04-06
+              </time>
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  7.2k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  31
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1>优惠卷秒杀</h1>
+<h2 id="全局唯一id">全局唯一id</h2>
+<p>ID的组成部分：</p>
+<ul>
+<li>符号位：1bit，永远为0</li>
+<li>时间戳：31bit，以秒为单位，可以使用69年</li>
+<li>序列号：32bit，秒内的计数器，支持每秒产生2^32个不同ID</li>
+<li>对应代码</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span>  <span class="keyword">final</span>  <span class="keyword">long</span> BEGIN_TIMESTAMP=<span class="number">1640995200L</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span>  <span class="keyword">int</span> COUNT_BITS=<span class="number">32</span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">nextId</span><span class="params">(String keyPrefix)</span></span>&#123;</span><br><span class="line">    <span class="comment">//1 生成时间戳</span></span><br><span class="line"></span><br><span class="line">    LocalDateTime now = LocalDateTime.now();</span><br><span class="line">    <span class="keyword">long</span> nowSecond = now.toEpochSecond(ZoneOffset.UTC);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">long</span> timestamp = nowSecond - BEGIN_TIMESTAMP;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//2 生成序列号</span></span><br><span class="line">    <span class="comment">//2.1 获取到日期，精确到天</span></span><br><span class="line">    String date = now.format(DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy:MM:dd&quot;</span>));</span><br><span class="line">    <span class="comment">//2.2 自增长</span></span><br><span class="line">    <span class="comment">//如果对应的key值不存在 会返回1 所以永远不会空指针</span></span><br><span class="line">    <span class="keyword">long</span> increment = stringRedisTemplate.opsForValue().increment(<span class="string">&quot;icr:&quot;</span> + keyPrefix + <span class="string">&quot;:&quot;</span> + date);</span><br><span class="line">    <span class="keyword">long</span> left = nowSecond &lt;&lt; COUNT_BITS;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//3 拼接并返回</span></span><br><span class="line">    <span class="keyword">return</span> left|increment;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="实现优惠券秒杀下单">实现优惠券秒杀下单</h2>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521142801253.png" alt="image-20220521142801253"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> ISeckillVoucherService seckillVoucherService;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//自定义订单id生成工具类</span></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> RedisWorker redisWorker;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">seckillVoucher</span><span class="params">(Long voucherId)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//1 查询优惠卷</span></span><br><span class="line">        SeckillVoucher seckillVoucher = seckillVoucherService.getById(voucherId);</span><br><span class="line">        <span class="comment">//2 判断秒杀是否开始</span></span><br><span class="line">        LocalDateTime beginTime = seckillVoucher.getBeginTime();</span><br><span class="line">        <span class="keyword">if</span> (beginTime.isAfter(LocalDateTime.now()))&#123;</span><br><span class="line">            <span class="comment">//秒杀没有开始</span></span><br><span class="line">            <span class="keyword">return</span> Result.fail(<span class="string">&quot;秒杀还没开始！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//3 判断秒杀是否结束</span></span><br><span class="line">        <span class="keyword">if</span> (seckillVoucher.getEndTime().isBefore(LocalDateTime.now()))&#123;</span><br><span class="line">            <span class="comment">//秒杀已经结束</span></span><br><span class="line">            <span class="keyword">return</span> Result.fail(<span class="string">&quot;秒杀已经结束!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//4 判断库存是否充足</span></span><br><span class="line">        Integer stock = seckillVoucher.getStock();</span><br><span class="line">        <span class="keyword">if</span> (stock&lt;<span class="number">1</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> Result.fail(<span class="string">&quot;库存不足!!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//5 扣减库存</span></span><br><span class="line">        <span class="keyword">boolean</span> success = seckillVoucherService.update().setSql(<span class="string">&quot;stock=stock-1&quot;</span>).eq(<span class="string">&quot;voucher_id&quot;</span>, voucherId).update();</span><br><span class="line">        <span class="keyword">if</span> (!success)&#123;</span><br><span class="line">            <span class="comment">//扣减失败</span></span><br><span class="line">            <span class="keyword">return</span> Result.fail(<span class="string">&quot;库存不足！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//6 创建订单</span></span><br><span class="line">        VoucherOrder voucherOrder = <span class="keyword">new</span> VoucherOrder();</span><br><span class="line">        <span class="comment">//订单id</span></span><br><span class="line">        <span class="keyword">long</span> orderId = redisWorker.nextId(<span class="string">&quot;order&quot;</span>);</span><br><span class="line">        voucherOrder.setId(orderId);</span><br><span class="line">        <span class="comment">//用户id</span></span><br><span class="line">        Long userId = UserHolder.getUser().getId();</span><br><span class="line">        voucherOrder.setUserId(userId);</span><br><span class="line">        <span class="comment">//代金卷id</span></span><br><span class="line">        voucherOrder.setVoucherId(voucherId);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.save(voucherOrder);</span><br><span class="line">        <span class="comment">//7 返回订单id</span></span><br><span class="line">        <span class="keyword">return</span> Result.ok(orderId);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="超卖问题">超卖问题:</h2>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521151308657.png" alt="image-20220521151308657"></p>
+<p><strong>库存超卖</strong></p>
+<p>解决方案：</p>
+<p><strong>悲观锁</strong></p>
+<p>认为线程安全问题一定会发生，因此在操作数据之前先获取锁，确保线程串行执行。</p>
+<ul>
+<li>例如Synchronized、Lock都属于悲观锁</li>
+</ul>
+<p><strong>乐观锁</strong></p>
+<p>认为线程安全问题不一定会发生，因此不加锁，只是在更新数据时去判断有没有其它线程对数据做了修改。</p>
+<ul>
+<li>如果没有修改则认为是安全的，自己才更新数据。</li>
+<li>如果已经被其它线程修改说明发生了安全问题，此时可以重试或异常</li>
+</ul>
+<p>乐观锁的关键是判断之前查询得到的数据是否有被修改过，常见的方式有两种：</p>
+<p><strong>版本号法:</strong></p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521151749737.png" alt="image-20220521151749737"></p>
+<p>用数据本身 作比较 实现乐观锁 简称<strong>CAS</strong></p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521152038846.png" alt="image-20220521152038846"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Result <span class="title">seckillVoucher</span><span class="params">(Long voucherId)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//1 查询优惠卷</span></span><br><span class="line">    SeckillVoucher seckillVoucher = seckillVoucherService.getById(voucherId);</span><br><span class="line">    <span class="comment">//2 判断秒杀是否开始</span></span><br><span class="line">    LocalDateTime beginTime = seckillVoucher.getBeginTime();</span><br><span class="line">    <span class="keyword">if</span> (beginTime.isAfter(LocalDateTime.now()))&#123;</span><br><span class="line">        <span class="comment">//秒杀没有开始</span></span><br><span class="line">        <span class="keyword">return</span> Result.fail(<span class="string">&quot;秒杀还没开始！&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//3 判断秒杀是否结束</span></span><br><span class="line">    <span class="keyword">if</span> (seckillVoucher.getEndTime().isBefore(LocalDateTime.now()))&#123;</span><br><span class="line">        <span class="comment">//秒杀已经结束</span></span><br><span class="line">        <span class="keyword">return</span> Result.fail(<span class="string">&quot;秒杀已经结束!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//4 判断库存是否充足</span></span><br><span class="line">    Integer stock = seckillVoucher.getStock();</span><br><span class="line">    <span class="keyword">if</span> (stock&lt;<span class="number">1</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> Result.fail(<span class="string">&quot;库存不足!!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//5 扣减库存</span></span><br><span class="line">    <span class="keyword">boolean</span> success = seckillVoucherService.update()</span><br><span class="line">            .setSql(<span class="string">&quot;stock=stock-1&quot;</span>).eq(<span class="string">&quot;voucher_id&quot;</span>, voucherId).gt(<span class="string">&quot;stock&quot;</span>,<span class="number">0</span>) <span class="comment">//只用判断库存大于0就可以了</span></span><br><span class="line">            .update();</span><br><span class="line">    <span class="keyword">if</span> (!success)&#123;</span><br><span class="line">        <span class="comment">//扣减失败</span></span><br><span class="line">        <span class="keyword">return</span> Result.fail(<span class="string">&quot;库存不足！&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//6 创建订单</span></span><br><span class="line">    VoucherOrder voucherOrder = <span class="keyword">new</span> VoucherOrder();</span><br><span class="line">    <span class="comment">//订单id</span></span><br><span class="line">    <span class="keyword">long</span> orderId = redisWorker.nextId(<span class="string">&quot;order&quot;</span>);</span><br><span class="line">    voucherOrder.setId(orderId);</span><br><span class="line">    <span class="comment">//用户id</span></span><br><span class="line">    Long userId = UserHolder.getUser().getId();</span><br><span class="line">    voucherOrder.setUserId(userId);</span><br><span class="line">    <span class="comment">//代金卷id</span></span><br><span class="line">    voucherOrder.setVoucherId(voucherId);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.save(voucherOrder);</span><br><span class="line">    <span class="comment">//7 返回订单id</span></span><br><span class="line">    <span class="keyword">return</span> Result.ok(orderId);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>还有一种 <strong>分段锁的优化方案 把库存分为多个表 用来抢的时候在多个表中同时进行 这样效率大大提高</strong></p>
+<h2 id="一人一单">一人一单:</h2>
+<p>需求:<strong>修改秒杀业务，要求同一个优惠券，一个用户只能下一单</strong></p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521153419943.png" alt="image-20220521153419943"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//线程不安全     </span></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">seckillVoucher</span><span class="params">(Long voucherId)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//1 查询优惠卷</span></span><br><span class="line">        SeckillVoucher seckillVoucher = seckillVoucherService.getById(voucherId);</span><br><span class="line">        <span class="comment">//2 判断秒杀是否开始</span></span><br><span class="line">        LocalDateTime beginTime = seckillVoucher.getBeginTime();</span><br><span class="line">        <span class="keyword">if</span> (beginTime.isAfter(LocalDateTime.now()))&#123;</span><br><span class="line">            <span class="comment">//秒杀没有开始</span></span><br><span class="line">            <span class="keyword">return</span> Result.fail(<span class="string">&quot;秒杀还没开始！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//3 判断秒杀是否结束</span></span><br><span class="line">        <span class="keyword">if</span> (seckillVoucher.getEndTime().isBefore(LocalDateTime.now()))&#123;</span><br><span class="line">            <span class="comment">//秒杀已经结束</span></span><br><span class="line">            <span class="keyword">return</span> Result.fail(<span class="string">&quot;秒杀已经结束!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//4 判断库存是否充足</span></span><br><span class="line">        Integer stock = seckillVoucher.getStock();</span><br><span class="line">        <span class="keyword">if</span> (stock&lt;<span class="number">1</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span> Result.fail(<span class="string">&quot;库存不足!!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//一人一单 业务</span></span><br><span class="line">        <span class="comment">//用户id</span></span><br><span class="line">        Long userId = UserHolder.getUser().getId();</span><br><span class="line">        <span class="comment">//6.1 查询用户订单</span></span><br><span class="line">        <span class="keyword">int</span> count = query().eq(<span class="string">&quot;user_id&quot;</span>, userId).eq(<span class="string">&quot;voucher_id&quot;</span>, voucherId).count();</span><br><span class="line">        <span class="comment">//6.2 判断是否存在</span></span><br><span class="line">        <span class="keyword">if</span> (count &gt;<span class="number">0</span> )&#123;</span><br><span class="line">            <span class="comment">//用户已经购买</span></span><br><span class="line">            <span class="keyword">return</span> Result.fail(<span class="string">&quot;用户已经购买过了！！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//5 扣减库存</span></span><br><span class="line">        <span class="keyword">boolean</span> success = seckillVoucherService.update()</span><br><span class="line">                .setSql(<span class="string">&quot;stock=stock-1&quot;</span>).eq(<span class="string">&quot;voucher_id&quot;</span>, voucherId).gt(<span class="string">&quot;stock&quot;</span>,<span class="number">0</span>) <span class="comment">//只用判断库存大于0就可以了</span></span><br><span class="line">                .update();</span><br><span class="line">        <span class="keyword">if</span> (!success)&#123;</span><br><span class="line">            <span class="comment">//扣减失败</span></span><br><span class="line">            <span class="keyword">return</span> Result.fail(<span class="string">&quot;库存不足！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//6 创建订单</span></span><br><span class="line">        VoucherOrder voucherOrder = <span class="keyword">new</span> VoucherOrder();</span><br><span class="line">        <span class="comment">//订单id</span></span><br><span class="line">        <span class="keyword">long</span> orderId = redisWorker.nextId(<span class="string">&quot;order&quot;</span>);</span><br><span class="line">        voucherOrder.setId(orderId);</span><br><span class="line">        <span class="comment">//用户id</span></span><br><span class="line">        voucherOrder.setUserId(userId);</span><br><span class="line">        <span class="comment">//代金卷id</span></span><br><span class="line">        voucherOrder.setVoucherId(voucherId);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.save(voucherOrder);</span><br><span class="line">        <span class="comment">//7 返回订单id</span></span><br><span class="line">        <span class="keyword">return</span> Result.ok(orderId);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//单体架构线程安全</span></span><br><span class="line"><span class="comment">//1.每个用户线程进来拿到的id是新创建的对象，这样每个线程拿到的所都不是同一个对象。所以必须要使用常量池中的UserId字符串对象作为加锁对象。而且必须锁住的是这个方法 因为这一个方法为一个事务 不能在事务结束之前让其他线程拿到锁对象。 要在事务提交完后释放锁</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//2.springboot 做的事务代理 用的是当前对象的代理对象做动态代理 实现事务操作 为了不让事务失效 要做如下处理 </span></span><br><span class="line"><span class="comment">//并且需要添加依赖 </span></span><br><span class="line"><span class="comment">//&lt;dependency&gt;</span></span><br><span class="line"><span class="comment">//  &lt;groupId&gt;org.aspectj&lt;/groupId&gt;</span></span><br><span class="line"><span class="comment">//  &lt;artifactId&gt;aspectjweaver&lt;/artifactId&gt;</span></span><br><span class="line"><span class="comment">//&lt;/dependency&gt;</span></span><br><span class="line"><span class="comment">//还有在启动类上 加上@EnableAspectJAutoProxy(exposeProxy = true)注解 暴露代理对象</span></span><br><span class="line"><span class="keyword">synchronized</span> (userId.toString().intern()) &#123;</span><br><span class="line">    <span class="comment">//获取代理对象(对象</span></span><br><span class="line">            IVoucherOrderService proxy = (IVoucherOrderService)AopContext.currentProxy();</span><br><span class="line">            <span class="keyword">return</span> proxy.createVoucherOrder(voucherId,userId);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  Result <span class="title">createVoucherOrder</span><span class="params">(Long voucherId,Long userId)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//5一人一单 业务</span></span><br><span class="line">        <span class="comment">//用户id</span></span><br><span class="line">            <span class="comment">//5.1 查询用户订单</span></span><br><span class="line">            <span class="keyword">int</span> count = query().eq(<span class="string">&quot;user_id&quot;</span>, userId).eq(<span class="string">&quot;voucher_id&quot;</span>, voucherId).count();</span><br><span class="line">            <span class="comment">//5.2 判断是否存在</span></span><br><span class="line">            <span class="keyword">if</span> (count &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="comment">//用户已经购买</span></span><br><span class="line">                <span class="keyword">return</span> Result.fail(<span class="string">&quot;用户已经购买过了！！&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//6 扣减库存</span></span><br><span class="line">            <span class="keyword">boolean</span> success = seckillVoucherService.update()</span><br><span class="line">                    .setSql(<span class="string">&quot;stock=stock-1&quot;</span>).eq(<span class="string">&quot;voucher_id&quot;</span>, voucherId).gt(<span class="string">&quot;stock&quot;</span>, <span class="number">0</span>) <span class="comment">//只用判断库存大于0就可以了</span></span><br><span class="line">                    .update();</span><br><span class="line">            <span class="keyword">if</span> (!success) &#123;</span><br><span class="line">                <span class="comment">//扣减失败</span></span><br><span class="line">                <span class="keyword">return</span> Result.fail(<span class="string">&quot;库存不足！&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//7 创建订单</span></span><br><span class="line">            VoucherOrder voucherOrder = <span class="keyword">new</span> VoucherOrder();</span><br><span class="line">            <span class="comment">//订单id</span></span><br><span class="line">            <span class="keyword">long</span> orderId = redisWorker.nextId(<span class="string">&quot;order&quot;</span>);</span><br><span class="line">            voucherOrder.setId(orderId);</span><br><span class="line">            <span class="comment">//用户id</span></span><br><span class="line">            voucherOrder.setUserId(userId);</span><br><span class="line">            <span class="comment">//代金卷id</span></span><br><span class="line">            voucherOrder.setVoucherId(voucherId);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">this</span>.save(voucherOrder);</span><br><span class="line">            <span class="comment">//7 返回订单id</span></span><br><span class="line">            <span class="keyword">return</span> Result.ok(orderId);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>通过加锁可以解决在单机情况下的一人一单安全问题，<strong>但是在集群模式下就不行了。</strong></p>
+<ol>
+<li>我们将服务启动两份，端口分别为8081和8082：</li>
+</ol>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521160835557.png" alt="image-20220521160835557"></p>
+<ol start="2">
+<li>
+<p>然后修改nginx的conf目录下的nginx.conf文件，配置反向代理和负载均衡</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521160846790.png" alt="image-20220521160846790"></p>
+</li>
+</ol>
+<p>现在，用户请求会在这两个节点上负载均衡，再次测试下是否存在线程安全问题。</p>
+<p>使用postman发送2个请求打到8081和8082这连个服务上在第一个端点停住 ，然后都打到第二个断点这样 再放行 <strong>就发生了重复下单</strong></p>
+<p>因为对应2个springboot服务 使用的是2个不同的jvm 底层就会有不同的堆栈 这样我们<strong>拿不到的锁就不是同一个对象</strong></p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521162519399.png" alt="image-20220521162519399"></p>
+<p><strong>解决方案：</strong></p>
+<h2 id="分布式锁"><strong>分布式锁</strong></h2>
+<h3 id="什么是分布式锁">什么是分布式锁</h3>
+<p>分布式锁：满足分布式系统或集群模式下多进程可见并且互斥的锁。</p>
+<h3 id="分布式锁的实现">分布式锁的实现</h3>
+<p>分布式锁的核心是实现多进程之间互斥，而满足这一点的方式有很多，常见的有三种：</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521163610118.png" alt="image-20220521163610118"></p>
+<h3 id="基于redis实现分步式锁">基于redis实现分步式锁</h3>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521173010163.png" alt="image-20220521173010163"></p>
+<h3 id="获取锁：">获取锁：</h3>
+<p>锁接口:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ILock</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 尝试获取锁</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> timeoutSec 锁持有的超时时间，过期后自动释放</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> true代表获取锁成功; false代表获取锁失败</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">tryLock</span><span class="params">(<span class="keyword">long</span> timeoutSec)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">unlock</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>互斥：确保只能有一个线程获取锁</p>
+<p>非阻塞： 尝试一次，成功返回true，失败返回false</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#添加锁,NX是互斥，EX是设置超时时间</span></span><br><span class="line"><span class="builtin-name">SET</span> lock thread NX EX 10</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">tryLock</span><span class="params">(<span class="keyword">long</span> timeoutSec)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//获取线程标识</span></span><br><span class="line">        <span class="keyword">long</span> threadId = Thread.currentThread().getId();</span><br><span class="line">        Boolean success = stringRedisTemplate.opsForValue().setIfAbsent(KEY_PREFIX + name, threadId+<span class="string">&quot;&quot;</span>, timeoutSec, TimeUnit.SECONDS);</span><br><span class="line">        <span class="keyword">return</span> BooleanUtil.isTrue(success);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="释放锁：">释放锁：</h3>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#释放锁</span></span><br><span class="line">DEL <span class="built_in">key</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unlock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">       stringRedisTemplate.delete(KEY_PREFIX + name);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>分步式锁实现:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//分步式架构加锁</span></span><br><span class="line">        <span class="comment">//获取锁对象</span></span><br><span class="line">        SimpleRedisLock lock = <span class="keyword">new</span> SimpleRedisLock(<span class="string">&quot;order:&quot;</span> + userId, stringRedisTemplate);</span><br><span class="line">        <span class="keyword">boolean</span> isLock = lock.tryLock(<span class="number">1200</span>);</span><br><span class="line">        <span class="comment">//判断是否获取锁成功</span></span><br><span class="line">        <span class="keyword">if</span> (!isLock)&#123;</span><br><span class="line">            <span class="comment">//获取锁失败, 返回错误或重试</span></span><br><span class="line">            <span class="keyword">return</span> Result.fail(<span class="string">&quot;一个人只允许下一单&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            IVoucherOrderService proxy = (IVoucherOrderService)AopContext.currentProxy();</span><br><span class="line">            <span class="keyword">return</span> proxy.createVoucherOrder(voucherId,userId);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            lock.unlock();</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="存在的问题：">存在的问题：</h3>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220521175240533.png" alt="image-20220521175240533"></p>
+<p>需求：修改之前的分布式锁实现，满足：</p>
+<ol>
+<li>在获取锁时存入线程标示（可以用UUID表示）</li>
+<li>在释放锁时先获取锁中的线程标示，判断是否与当前线程标示一致</li>
+</ol>
+<ul>
+<li>如果一致则释放锁</li>
+<li>如果不一致则不释放锁</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleRedisLock</span>  <span class="keyword">implements</span>  <span class="title">ILock</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span>  <span class="keyword">final</span> String KEY_PREFIX=<span class="string">&quot;lock:&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span>  <span class="keyword">final</span> String ID_PREFIX= UUID.randomUUID().toString(<span class="keyword">true</span>)+<span class="string">&quot;-&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SimpleRedisLock</span><span class="params">(String name, StringRedisTemplate stringRedisTemplate)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">        <span class="keyword">this</span>.stringRedisTemplate = stringRedisTemplate;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> StringRedisTemplate stringRedisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">tryLock</span><span class="params">(<span class="keyword">long</span> timeoutSec)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//获取线程标识</span></span><br><span class="line">        String threadId = ID_PREFIX+Thread.currentThread().getId();</span><br><span class="line">        Boolean success = stringRedisTemplate.opsForValue().setIfAbsent(KEY_PREFIX + name, threadId, timeoutSec, TimeUnit.SECONDS);</span><br><span class="line">        <span class="keyword">return</span> BooleanUtil.isTrue(success);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unlock</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//获取线程标识</span></span><br><span class="line">        String threadId = ID_PREFIX+Thread.currentThread().getId();</span><br><span class="line">        String value = stringRedisTemplate.opsForValue().get(KEY_PREFIX + name);</span><br><span class="line">        <span class="keyword">if</span> (threadId.equals(value))&#123;</span><br><span class="line">            stringRedisTemplate.delete(KEY_PREFIX + name);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>阻塞的原因可能是jvm的垃圾回收机制 STW  暂停了用户线程</strong></p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220523140003619.png" alt="image-20220523140003619"></p>
+<h3 id="原子性问题：">原子性问题：</h3>
+<p>需要把获取锁和释放锁变成一个原子性操作</p>
+<h3 id="Redis的Lua脚本">Redis的Lua脚本</h3>
+<p>Redis提供了Lua脚本功能，在一个脚本中编写多条Redis命令，确保多条命令执行时的原子性。Lua是一种编程语言，它的基本语法大家可以参考网站：<a target="_blank" rel="noopener" href="https://www.runoob.com/lua/lua-tutorial.html">https://www.runoob.com/lua/lua-tutorial.html</a><br>
+这里重点介绍Redis提供的调用函数，语法如下：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 执行redis命令</span><br><span class="line">redis.call(<span class="string">&#x27;命令名称&#x27;</span>, <span class="string">&#x27;key&#x27;</span>, <span class="string">&#x27;其它参数&#x27;</span>, ...)</span><br></pre></td></tr></table></figure>
+<p>例如，我们要执行set name jack，则脚本是这样：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 执行 set name jack</span><br><span class="line">redis.call(<span class="string">&#x27;set&#x27;</span>, <span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;jack&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>例如，我们要先执行set name Rose，再执行get name，则脚本如下</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">redis.call(<span class="string">&#x27;set&#x27;</span>, <span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;jack&#x27;</span>)</span><br><span class="line"># 再执行 get name</span><br><span class="line"><span class="keyword">local</span> name = redis.call(<span class="string">&#x27;get&#x27;</span>, <span class="string">&#x27;name&#x27;</span>)</span><br><span class="line"># 返回</span><br><span class="line"><span class="keyword">return</span> name</span><br></pre></td></tr></table></figure>
+<p>写好脚本以后，需要用Redis命令来调用脚本，调用脚本的常见命令如下：</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220523141414893.png" alt="image-20220523141414893"></p>
+<p>例如，我们要执行 redis.call(‘set’, ‘name’, ‘jack’) 这个脚本，语法如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//调用脚本 0 脚本需要的key类型的参数个数</span></span><br><span class="line">EVAL <span class="string">&quot;return redis.call(&#x27;set&#x27;,&#x27;name&#x27;,&#x27;jack&#x27;)&quot;</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>如果脚本中的key、value不想写死，可以作为参数传递。key类型参数会放入KEYS数组，其它参数会放入ARGV数组，在脚<br>
+本中可以从KEYS和ARGV数组获取这些参数：</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220523142226655.png" alt="image-20220523142226655"></p>
+<p>基于Redis的分布式锁<br>
+释放锁的业务流程是这样的：</p>
+<ol>
+<li>
+<p>获取锁中的线程标示</p>
+</li>
+<li>
+<p>判断是否与指定的标示（当前线程标示）一致</p>
+</li>
+<li>
+<p>如果一致则释放锁（删除）</p>
+</li>
+<li>
+<p>如果不一致则什么都不做</p>
+</li>
+</ol>
+<p>如果用Lua脚本来表示则是这样的：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 获取锁中的线程标识 get key</span></span><br><span class="line"><span class="keyword">local</span> id= redis.call(<span class="string">&#x27;get&#x27;</span>,KEYS[<span class="number">1</span>])</span><br><span class="line"><span class="comment">-- 比较线程标识与锁中的标识是否一致</span></span><br><span class="line"><span class="keyword">if</span>(id==ARGV[<span class="number">1</span>]) <span class="keyword">then</span></span><br><span class="line">    <span class="comment">--释放锁</span></span><br><span class="line">    redis.call(<span class="string">&#x27;del&#x27;</span>,KEYS[<span class="number">1</span>])</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>需求：基于Lua脚本实现分布式锁的释放锁逻辑<br>
+提示：RedisTemplate调用Lua脚本的API如下：</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220523143217464.png" alt="image-20220523143217464"></p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220523143245966.png" alt="image-20220523143245966"></p>
+<p>解锁实现:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span>  <span class="keyword">static</span> <span class="keyword">final</span> DefaultRedisScript&lt;Long&gt; UNLOCK_SCRIPT;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        UNLOCK_SCRIPT=<span class="keyword">new</span> DefaultRedisScript&lt;&gt;();</span><br><span class="line">        UNLOCK_SCRIPT.setLocation(<span class="keyword">new</span> ClassPathResource(<span class="string">&quot;unlock.lua&quot;</span>));</span><br><span class="line">        UNLOCK_SCRIPT.setResultType(Long.class);</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unlock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//调用lua脚本</span></span><br><span class="line">        stringRedisTemplate.execute(UNLOCK_SCRIPT,</span><br><span class="line">                Collections.singletonList(KEY_PREFIX+name),</span><br><span class="line">                ID_PREFIX+Thread.currentThread().getId());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>基于Redis的分布式锁实现思路：<br>
+• 利用set nx ex获取锁，并设置过期时间，保存线程标示<br>
+• 释放锁时先判断线程标示是否与自己一致，一致则删除锁<br>
+特性：<br>
+• 利用set nx满足互斥性<br>
+• 利用set ex保证故障时锁依然能释放，避免死锁，提高安全性<br>
+• 利用Redis集群保证高可用和高并发特性</p>
+<h3 id="基于setnx实现的分布式锁存在下面的问题">基于setnx实现的分布式锁存在下面的问题</h3>
+<ol>
+<li>不可重入：同一个线程无法多次获取同一把锁</li>
+<li>不可重试：获取锁只尝试一次就返回false，没有重试机制</li>
+<li>超时释放：锁超时释放虽然可以避免死锁，但如果是业务执行耗时较长，也会导致锁释放，存在安全隐患</li>
+<li>主从一致性：如果Redis提供了主从集群，主从同步存在延迟，当主宕机时，如果从并同步主中的锁数据，则会出现锁实现</li>
+</ol>
+<h3 id="Redisson">Redisson</h3>
+<p>Redisson是一个在Redis的基础上实现的Java驻内存数据网格（In-Memory Data Grid）。它不仅提供了一系列的分布式的Java常用对象，还提供了许多分布式服务，其中就包含了各种分布式锁的实现。</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220523150103686.png" alt="image-20220523150103686"></p>
+<h4 id="Redisson入门：">Redisson入门：</h4>
+<p>引入依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.redisson<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>redisson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.13.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>2.配置Redisson客户端</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RedisConfig</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> RedissonClient <span class="title">redissonClient</span><span class="params">()</span> </span>&#123;</span><br><span class="line"><span class="comment">// 配置类</span></span><br><span class="line">        Config config = <span class="keyword">new</span> Config();</span><br><span class="line"><span class="comment">// 添加redis地址，这里添加了单点的地址，也可以使用config.useClusterServers()添加集群地址</span></span><br><span class="line">        config.useSingleServer().setAddress(<span class="string">&quot;redis://192.168.150.101:6379&quot;</span>).setPassowrd(<span class="string">&quot;123321&quot;</span>);</span><br><span class="line"><span class="comment">// 创建客户端</span></span><br><span class="line">        <span class="keyword">return</span> Redisson.create(config);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3.使用Rediss的分步式锁</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Resource</span></span><br><span class="line">        <span class="keyword">private</span> RedissonClient redissonClient;</span><br><span class="line">        <span class="meta">@Test</span></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">testRedisson</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">            <span class="comment">// 获取锁（可重入），指定锁的名称</span></span><br><span class="line">            RLock lock = redissonClient.getLock(<span class="string">&quot;anyLock&quot;</span>);</span><br><span class="line">            <span class="comment">// 尝试获取锁，参数分别是：获取锁的最大等待时间（期间会重试），锁自动释放时间，时间单位</span></span><br><span class="line">            <span class="keyword">boolean</span> isLock = lock.tryLock(<span class="number">1</span>, <span class="number">10</span>, TimeUnit.SECONDS);</span><br><span class="line">            <span class="comment">// 判断释放获取成功</span></span><br><span class="line">            <span class="keyword">if</span>(isLock)&#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;执行业务&quot;</span>);</span><br><span class="line">                &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// 释放锁</span></span><br><span class="line">                    lock.unlock();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<h4 id="重试问题解决">重试问题解决:</h4>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 等待获取锁中  解决了重试问题</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">tryLock</span><span class="params">(<span class="keyword">long</span> waitTime, <span class="keyword">long</span> leaseTime, TimeUnit unit)</span> <span class="keyword">throws</span> InterruptedException </span></span><br></pre></td></tr></table></figure>
+<p>第一次获取锁失败，当我们的等待时间没有超时时 当前线程就会<strong>订阅</strong> 那个锁 ，等待锁释放时发布消息给他订阅的客户端。</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524163011905.png" alt="image-20220524163011905"></p>
+<p>如果等待锁的时间 依旧没有超过最长等待时间 那么就会进入while循环尝试第一次 再次获取锁</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524163508882.png" alt="image-20220524163508882"></p>
+<p>while通过信号量来知道，是否锁已经被释放。</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524163742049.png" alt="image-20220524163742049"></p>
+<h4 id="锁释放超时续约：">锁释放超时续约：</h4>
+<p>在尝试获取锁成功后会 调用scheduleExpirationRenewal（threadId）来开启 一个线程刷新锁的有效期。</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524164701439.png" alt="image-20220524164701439"></p>
+<p>ExpirationEntry存放 线程的id 和定时任务。</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524164919728.png" alt="image-20220524164919728"></p>
+<p><strong>开启一个线程 更新锁的有效期 时间是 默认超时时间的三分之一</strong>，只有当ExpirationEntry中没有线程id，也就是释放锁的时候不在更新有效期 结束递归调用 return;</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524164522912.png" alt="image-20220524164522912"></p>
+<p>解锁成功流程后 回调函数中 取消更新 ，<strong>也就是在ExpirationEntry 删除自己线程的Id</strong></p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524165311770.png" alt="image-20220524165311770"></p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524165344696.png" alt="image-20220524165344696"></p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524172217539.png" alt="image-20220524172217539"></p>
+<p>Redisson分布式锁原理：</p>
+<ul>
+<li>可重入：利用hash结构记录线程id和重入次数</li>
+<li>可重试：利用信号量和PubSub功能实现等待、唤醒，获取锁失败的重试机制</li>
+<li>超时续约：利用watchDog，每隔一段时间（releaseTime /3），重置超时时间</li>
+</ul>
+<h4 id="主从一致性问题：">主从一致性问题：</h4>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524172750043.png" alt="image-20220524172750043"></p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524172842956.png" alt="image-20220524172842956"></p>
+<p><strong>搭建3个redis节点:</strong></p>
+<p>只需要修改原来节点的端口号再启动 2个redis服务</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524173634837.png" alt="image-20220524173634837"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Resource</span></span><br><span class="line"><span class="keyword">private</span> RedissonClient redissonClient;</span><br><span class="line"><span class="meta">@Resource</span></span><br><span class="line"><span class="keyword">private</span> RedissonClient redissonClient2;</span><br><span class="line"><span class="meta">@Resource</span></span><br><span class="line"><span class="keyword">private</span> RedissonClient redissonClient3;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> RLock lock;</span><br><span class="line"></span><br><span class="line"><span class="meta">@BeforeEach</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">setUp</span><span class="params">()</span></span>&#123;</span><br><span class="line">    RLock lock1 = redissonClient.getLock(<span class="string">&quot;order&quot;</span>);</span><br><span class="line">    RLock lock2 = redissonClient2.getLock(<span class="string">&quot;order&quot;</span>);</span><br><span class="line">    RLock lock3 = redissonClient3.getLock(<span class="string">&quot;order&quot;</span>);</span><br><span class="line">    <span class="comment">//创建连锁</span></span><br><span class="line">    lock=redissonClient.getMultiLock(lock1,lock2,lock3);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>
+<p>不可重入Redis分布式锁：</p>
+<ul>
+<li>原理：利用setnx的互斥性；利用ex避免死锁；释放锁时判断线程标示</li>
+<li>缺陷：不可重入、无法重试、锁超时失效</li>
+</ul>
+</li>
+<li>
+<p>可重入的Redis分布式锁：</p>
+<ul>
+<li>原理：利用hash结构，记录线程标示和重入次数；利用watchDog延续锁时间；利用信号量控制锁重试等待</li>
+<li>缺陷：redis宕机引起锁失效问题</li>
+</ul>
+</li>
+<li>
+<p>Redisson的multiLock：</p>
+<ul>
+<li>原理：多个独立的Redis节点，必须在所有节点都获取重入锁，才算获取锁成功</li>
+<li>缺陷：运维成本高、实现复杂</li>
+</ul>
+</li>
+</ol>
+<h2 id="Redis优化秒杀业务">Redis优化秒杀业务</h2>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524192634929.png" alt="image-20220524192634929"></p>
+<p>对数据库的添加和更新操作我们开启新线程 ，抢不抢的到的资格问题我们把他交给redis来做 使用lua脚本。</p>
+<p>redis检验的资格，就相当于我们去吃饭时的小票。</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524192723175.png" alt="image-20220524192723175"></p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220524193505920.png" alt="image-20220524193505920"></p>
+<p><strong>改进秒杀业务，提高并发性能</strong><br>
+需求：<br>
+① 新增秒杀优惠券的同时，将优惠券信息保存到Redis中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addSeckillVoucher</span><span class="params">(Voucher voucher)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 保存优惠券</span></span><br><span class="line">        save(voucher);</span><br><span class="line">        <span class="comment">// 保存秒杀信息</span></span><br><span class="line">        SeckillVoucher seckillVoucher = <span class="keyword">new</span> SeckillVoucher();</span><br><span class="line">        seckillVoucher.setVoucherId(voucher.getId());</span><br><span class="line">        seckillVoucher.setStock(voucher.getStock());</span><br><span class="line">        seckillVoucher.setBeginTime(voucher.getBeginTime());</span><br><span class="line">        seckillVoucher.setEndTime(voucher.getEndTime());</span><br><span class="line">        seckillVoucherService.save(seckillVoucher);</span><br><span class="line">        <span class="comment">//保存秒杀的库存 加入redis</span></span><br><span class="line">        stringRedisTemplate.opsForValue().set(SECKILL_STOCK_KEY+voucher.getId(),voucher.getStock().toString());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>② 基于Lua脚本，判断秒杀库存、一人一单，决定用户是否抢购成功</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1.参数列表</span></span><br><span class="line"><span class="comment">--1.1 优惠卷id</span></span><br><span class="line"><span class="keyword">local</span> voucherId=ARGV[<span class="number">1</span>]</span><br><span class="line"><span class="comment">-- 1.2 用户id</span></span><br><span class="line"><span class="keyword">local</span> userId=ARGV[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2.数据key</span></span><br><span class="line"><span class="comment">-- 2.1 库存key</span></span><br><span class="line"><span class="keyword">local</span> stockKey=<span class="string">&#x27;seckill:stock&#x27;</span> .. voucherId</span><br><span class="line"><span class="comment">-- 2.2 订单key</span></span><br><span class="line"><span class="keyword">local</span> orderKey=<span class="string">&#x27;seckill:order&#x27;</span>.. voucherId</span><br><span class="line"><span class="comment">-- 3.脚本业务</span></span><br><span class="line"><span class="comment">-- 3.1 判断库存是否充足</span></span><br><span class="line"><span class="comment">-- 这里得到的时 string类型 不能直接判断</span></span><br><span class="line"><span class="keyword">if</span>(<span class="built_in">tonumber</span>(redis.call(<span class="string">&#x27;get&#x27;</span>,stockKey))&lt;= <span class="number">0</span>) <span class="keyword">then</span></span><br><span class="line">    <span class="comment">-- 3.1.1 库存不足</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="comment">-- 3.2 判断用户是否下单</span></span><br><span class="line"><span class="keyword">if</span>(redis.call(<span class="string">&#x27;SISMEMBER&#x27;</span>,orderKey,userId)== <span class="number">1</span>) <span class="keyword">then</span></span><br><span class="line">    <span class="comment">-- 3.3存在，说明时重复下单吗，返回2</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span>;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="comment">-- 3.4 扣库存 incrby stockKey -1</span></span><br><span class="line">redis.call(<span class="string">&#x27;incrby&#x27;</span>,stockKey,<span class="number">-1</span>)</span><br><span class="line"><span class="comment">-- 3.5 下单(保存用户) sadd orderKey userId</span></span><br><span class="line">redis.call(<span class="string">&#x27;sadd&#x27;</span>,orderKey,userId)</span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>③ 如果抢购成功，将优惠券id和用户id封装后存入阻塞队列</p>
+<p>④ 开启线程任务，不断从阻塞队列中获取信息，实现异步下单功能</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">private</span>  <span class="keyword">static</span> <span class="keyword">final</span> DefaultRedisScript&lt;Long&gt; SECKILL_SCRIPT;</span><br><span class="line">  <span class="keyword">static</span> &#123;</span><br><span class="line">        SECKILL_SCRIPT=<span class="keyword">new</span> DefaultRedisScript&lt;&gt;();</span><br><span class="line">        SECKILL_SCRIPT.setLocation(<span class="keyword">new</span> ClassPathResource(<span class="string">&quot;seckill.lua&quot;</span>));</span><br><span class="line">        SECKILL_SCRIPT.setResultType(Long.class);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> BlockingQueue&lt;VoucherOrder&gt; orderTasks=<span class="keyword">new</span> ArrayBlockingQueue&lt;&gt;(<span class="number">1024</span>*<span class="number">1024</span>);</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ExecutorService SECKILL_ORDER_EXECUTOR= Executors.newSingleThreadExecutor();</span><br><span class="line">    <span class="keyword">private</span>  IVoucherOrderService proxy;</span><br><span class="line"></span><br><span class="line">   <span class="comment">//类初始化完 开启线程池</span></span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span></span>&#123;</span><br><span class="line">        SECKILL_ORDER_EXECUTOR.submit(<span class="keyword">new</span> VoucherOrderHandler());</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//秒杀业务开始 执行lua脚本 判断用户是否持有秒杀资格</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">seckillVoucher</span><span class="params">(Long voucherId)</span> </span>&#123;</span><br><span class="line">        Long userId = UserHolder.getUser().getId();</span><br><span class="line">        <span class="comment">//1 .执行 lua脚本</span></span><br><span class="line">        Long result = stringRedisTemplate.execute(SECKILL_SCRIPT, Collections.emptyList(), voucherId.toString(), userId.toString());</span><br><span class="line">        <span class="comment">//result 0:成功 1:库存不足 2:已经下单</span></span><br><span class="line">        <span class="comment">// 2.判断结果为0</span></span><br><span class="line">        <span class="keyword">int</span> r = result.intValue();</span><br><span class="line">        <span class="keyword">if</span> (r != <span class="number">0</span>)&#123;</span><br><span class="line">            <span class="comment">// 2.1. 不为0代表没有购买资格</span></span><br><span class="line">            <span class="keyword">return</span> Result.fail(r==<span class="number">1</span>?<span class="string">&quot;库存不足！&quot;</span>:<span class="string">&quot;您已经下单成功!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">       <span class="comment">// 2.2 为0 有购买资格，把下单信息保存到阻塞队列</span></span><br><span class="line">        <span class="comment">//生成订单号</span></span><br><span class="line">        <span class="keyword">long</span> orderId = redisWorker.nextId(<span class="string">&quot;order&quot;</span>);</span><br><span class="line">        <span class="comment">//7 创建订单</span></span><br><span class="line">        VoucherOrder voucherOrder = <span class="keyword">new</span> VoucherOrder();</span><br><span class="line">        <span class="comment">//订单id</span></span><br><span class="line">        voucherOrder.setId(orderId);</span><br><span class="line">        <span class="comment">//用户id</span></span><br><span class="line">        voucherOrder.setUserId(userId);</span><br><span class="line">        <span class="comment">//代金卷id</span></span><br><span class="line">        voucherOrder.setVoucherId(voucherId);</span><br><span class="line">        <span class="comment">//3. 返回订单id</span></span><br><span class="line">        orderTasks.add(voucherOrder);</span><br><span class="line">       <span class="keyword">return</span>  Result.ok(orderId);</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">//异步创建订单任务 再类初始化之后交给线程池执行</span></span><br><span class="line">    <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">VoucherOrderHandler</span> <span class="keyword">implements</span>  <span class="title">Runnable</span></span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">                    <span class="comment">//1 获取队列中的订单信息</span></span><br><span class="line">                    VoucherOrder voucherOrder = orderTasks.take();</span><br><span class="line">                    <span class="comment">//创建订单</span></span><br><span class="line">                    handleVoucherOrder(voucherOrder);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                log.error(<span class="string">&quot;处理订单异常!!&quot;</span>,e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//创建订单和减库存</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">handleVoucherOrder</span><span class="params">(VoucherOrder voucherOrder)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//为什么这里 还要做加锁呢 我们redis已经做了资格判断 不是不需要锁吗？</span></span><br><span class="line">        <span class="comment">//这是为了 以防万一 做兜底方案 防止redis宕机</span></span><br><span class="line">        Long userId = voucherOrder.getUserId();</span><br><span class="line">        Long voucherId = voucherOrder.getVoucherId();</span><br><span class="line">        RLock lock = redissonClient.getLock(<span class="string">&quot;lock:order:&quot;</span> + userId);</span><br><span class="line">        <span class="keyword">boolean</span> isLock = lock.tryLock();</span><br><span class="line">        <span class="comment">//判断是否获取锁成功</span></span><br><span class="line">        <span class="keyword">if</span> (!isLock)&#123;</span><br><span class="line">            <span class="comment">//获取锁失败, 返回错误或重试</span></span><br><span class="line">            log.error(<span class="string">&quot;不允许重复下单!&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            proxy.createVoucherOrder(voucherOrder);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            lock.unlock();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Transactional</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">void</span> <span class="title">createVoucherOrder</span><span class="params">(VoucherOrder voucherOrder)</span></span>&#123;</span><br><span class="line">        Long userId = voucherOrder.getUserId();</span><br><span class="line">        Long voucherId = voucherOrder.getVoucherId();</span><br><span class="line">        <span class="keyword">int</span> count = query().eq(<span class="string">&quot;user_id&quot;</span>, userId).eq(<span class="string">&quot;voucher_id&quot;</span>, voucherId).count();</span><br><span class="line">            <span class="comment">//5.2 判断是否存在</span></span><br><span class="line">            <span class="keyword">if</span> (count &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="comment">//用户已经购买</span></span><br><span class="line">                log.error(<span class="string">&quot;用户已经购买!!&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//6 扣减库存</span></span><br><span class="line">            <span class="keyword">boolean</span> success = seckillVoucherService.update()</span><br><span class="line">                    .setSql(<span class="string">&quot;stock=stock-1&quot;</span>).eq(<span class="string">&quot;voucher_id&quot;</span>, voucherId).gt(<span class="string">&quot;stock&quot;</span>, <span class="number">0</span>) <span class="comment">//只用判断库存大于0就可以了</span></span><br><span class="line">                    .update();</span><br><span class="line">            <span class="keyword">if</span> (!success) &#123;</span><br><span class="line">                <span class="comment">//扣减失败</span></span><br><span class="line">                log.error(<span class="string">&quot;库存不足!!&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">this</span>.save(voucherOrder);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p><strong>测试前置要求redis中一定储存秒杀卷的库存信息</strong></p>
+<p>秒杀业务的优化思路是什么？<br>
+① 先利用Redis完成库存余量、一人一单判断，完成抢单业务<br>
+② 再将下单业务放入阻塞队列，利用独立线程异步下单<br>
+基于阻塞队列的异步秒杀存在哪些问题？</p>
+<ul>
+<li>内存限制问题</li>
+<li>数据安全问题</li>
+</ul>
+<h2 id="Redis消息队列实现异步秒杀">Redis消息队列实现异步秒杀</h2>
+<p><strong>市面上还有一些其他的 消息队列如： Rabbitmq，RocketMq等</strong></p>
+<p>消息队列（Message Queue），字面意思就是存放消息的队列。最简单的消息队列模型包括3个角色：</p>
+<ul>
+<li>消息队列：存储和管理消息，也被称为消息代理（Message Broker）</li>
+<li>生产者：发送消息到消息队列</li>
+<li>消费者：从消息队列获取消息并处理消息</li>
+</ul>
+<p>Redis提供了三种不同的方式来实现消息队列：</p>
+<ul>
+<li>list结构：基于List结构模拟消息队列</li>
+<li>PubSub：基本的点对点消息模型</li>
+<li>Stream：比较完善的消息队列模型</li>
+</ul>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525144650380.png" alt="image-20220525144650380"></p>
+<h4 id="基于List实现消息队列">基于<strong>List实现消息队列</strong></h4>
+<p>消息队列（Message Queue），字面意思就是存放消息的队列。而Redis的list数据结构是一个双向链表，很容易模拟出队列效果。<br>
+队列是入口和出口不在一边，因此我们可以利用：LPUSH 结合 RPOP、或者 RPUSH 结合 LPOP来实现。<br>
+不过要注意的是，当队列中没有消息时RPOP或LPOP操作会返回null，并不像JVM的阻塞队列那样会阻塞并等待消息。因此这里应该使用BRPOP或者BLPOP来实现阻塞效果。</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525151831375.png" alt="image-20220525151831375"></p>
+<p>基于List的消息队列有哪些优缺点？<br>
+优点：</p>
+<ul>
+<li>利用Redis存储，不受限于JVM内存上限</li>
+<li>基于Redis的持久化机制，数据安全性有保证</li>
+<li>可以满足消息有序性</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>无法避免消息丢失</li>
+<li>只支持单消费者</li>
+</ul>
+<h4 id="基于PubSub的消息队列">基于PubSub的消息队列</h4>
+<p>PubSub（发布订阅）是Redis2.0版本引入的消息传递模型。顾名思义，消费者可以订阅一个或多个channel，生产者向对应channel发送消息后，所有订阅者都能收到相关消息。</p>
+<ul>
+<li>SUBSCRIBE channel [channel] ：订阅一个或多个频道</li>
+<li>PUBLISH channel msg ：向一个频道发送消息</li>
+<li>PSUBSCRIBE pattern[pattern] ：订阅与pattern格式匹配的所有频道</li>
+</ul>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525152638028.png" alt="image-20220525152638028"></p>
+<p>基于PubSub的消息队列有哪些优缺点？<br>
+优点：</p>
+<ul>
+<li>采用发布订阅模型，支持多生产、多消费</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>不支持数据持久化</li>
+<li>无法避免消息丢失</li>
+<li>消息堆积有上限，超出时数据丢失</li>
+</ul>
+<h4 id="基于Stream的消息队列">基于Stream的消息队列</h4>
+<p>Stream 是 Redis 5.0 引入的一种新数据类型，可以实现一个功能非常完善的消息队列。<br>
+发送消息的命令：</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525154254793.png" alt="image-20220525154254793"></p>
+<p>例如：</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525154306147.png" alt="image-20220525154306147"></p>
+<p>读取消息的方式之一：<strong>XREAD</strong></p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525154835352.png" alt="image-20220525154835352"></p>
+<p>例如，使用XREAD读取第一个消息：</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525154826239.png" alt="image-20220525154826239">阻塞读取消息:</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525155512816.png" alt="image-20220525155512816"></p>
+<p><strong>0表示一致阻塞 直到有消息</strong></p>
+<p>STREAM类型消息队列的XREAD命令特点：</p>
+<ul>
+<li>消息可回溯</li>
+<li>一个消息可以被多个消费者读取</li>
+<li>可以阻塞读取</li>
+<li>有消息漏读的风险</li>
+</ul>
+<p>消费者组（Consumer Group）：将多个消费者划分到一个组中，监听同一个队列。具备下列特点：</p>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525160058405.png" alt="image-20220525160058405"></p>
+<p>创建消费者组：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">XGROUP CREATE key groupName ID [MKSTREAM]</span><br></pre></td></tr></table></figure>
+<ul>
+<li>key：队列名称</li>
+<li>groupName：消费者组名称</li>
+<li>ID：起始ID标示，$代表队列中最后一个消息，0则代表队列中第一个消息</li>
+<li>MKSTREAM：队列不存在时自动创建队列</li>
+</ul>
+<p>其它常见命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 删除指定的消费者组</span></span><br><span class="line">XGROUP DESTORY key groupName</span><br><span class="line"><span class="meta">#</span><span class="bash"> 给指定的消费者组添加消费者</span></span><br><span class="line">XGROUP CREATECONSUMER key groupname consumername</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除消费者组中的指定消费者</span></span><br><span class="line">XGROUP DELCONSUMER key groupname consumername</span><br></pre></td></tr></table></figure>
+<p>从消费者组读取消息：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">XREADGROUP GROUP group consumer [COUNT count] [BLOCK milliseconds] [NOACK] STREAMS key [key ...] ID</span><br><span class="line">[ID ...]</span><br></pre></td></tr></table></figure>
+<p>group：消费组名称</p>
+<ul>
+<li>consumer：消费者名称，如果消费者不存在，会自动创建一个消费者</li>
+<li>count：本次查询的最大数量</li>
+<li>BLOCK milliseconds：当没有消息时最长等待时间</li>
+<li>NOACK：无需手动ACK，获取到消息后自动确认</li>
+<li>STREAMS key：指定队列名称</li>
+<li>ID：获取消息的起始ID：
+<ul>
+<li>“&gt;”：从下一个未消费的消息开始</li>
+<li>其它：根据指定id从pending-list中获取已消费但未确认的消息，例如0，是从pending-list中的第一个消息开始</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">key:队列名称 group:组名 IDLE min-idle-time：空闲时间，空闲时间超过这个的消息 start:开始位置 end:结束位置 count:数量 consumer:那个消费者</span></span><br><span class="line">XPENDING key group [ [IDLE min-idle-time] start end count [consumer]]</span><br></pre></td></tr></table></figure>
+<p>例如:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">表示获取未确认的消息</span></span><br><span class="line">xpending s1 g1 - + 10</span><br></pre></td></tr></table></figure>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525162953985.png" alt="image-20220525162953985"></p>
+<p>STREAM类型消息队列的XREADGROUP命令特点：</p>
+<ul>
+<li>消息可回溯</li>
+<li>可以多消费者争抢消息，加快消费速度</li>
+<li>可以阻塞读取</li>
+<li>没有消息漏读的风险</li>
+<li>有消息确认机制，保证消息至少被消费一次</li>
+</ul>
+<p><img src="https://edu-1395430748.oss-cn-beijing.aliyuncs.com/images/imgs/image-20220525163254215.png" alt="image-20220525163254215"></p>
+<p>案例：</p>
+<p>需求：<br>
+① 创建一个Stream类型的消息队列，名为stream.orders</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">xgroup</span> create stream.orders g<span class="number">1</span> <span class="number">0</span> MKstream</span><br></pre></td></tr></table></figure>
+<p>② 修改之前的秒杀下单Lua脚本，在认定有抢购资格后，直接向stream.orders中添加消息，内容包含voucherId、userId、orderId<br>
+③ 项目启动时，开启一个线程任务，尝试获取stream.orders中的消息，完成下单</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ExecutorService SECKILL_ORDER_EXECUTOR= Executors.newSingleThreadExecutor();</span><br><span class="line">   <span class="keyword">private</span>  IVoucherOrderService proxy;</span><br><span class="line">   <span class="meta">@PostConstruct</span></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span></span>&#123;</span><br><span class="line">       SECKILL_ORDER_EXECUTOR.submit(<span class="keyword">new</span> VoucherOrderHandler());</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">VoucherOrderHandler</span> <span class="keyword">implements</span>  <span class="title">Runnable</span></span>&#123;</span><br><span class="line">       String queueName=<span class="string">&quot;stream.orders&quot;</span>;</span><br><span class="line">       <span class="meta">@Override</span></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">           <span class="keyword">try</span> &#123;</span><br><span class="line">               <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">                   <span class="comment">//1 获取队列中的订单信息 XREADGROUP GROUP g1 c1 count 1 block 2000 streams.order &gt;</span></span><br><span class="line">                   List&lt;MapRecord&lt;String, Object, Object&gt;&gt; list = stringRedisTemplate.opsForStream().read(</span><br><span class="line">                           Consumer.from(<span class="string">&quot;g1&quot;</span>, <span class="string">&quot;c1&quot;</span>),</span><br><span class="line">                           StreamReadOptions.empty().count(<span class="number">1</span>).block(Duration.ofSeconds(<span class="number">2</span>)),</span><br><span class="line">                           StreamOffset.create(queueName, ReadOffset.lastConsumed()));</span><br><span class="line">                   <span class="comment">//2 判断消息是否获取成功</span></span><br><span class="line">                   <span class="keyword">if</span> (list==<span class="keyword">null</span> || list.isEmpty())&#123;</span><br><span class="line">                       <span class="comment">//2.1 如果获取失败，说明没有消息，继续下一次循环</span></span><br><span class="line">                       <span class="keyword">continue</span>;</span><br><span class="line">                   &#125;</span><br><span class="line">                   MapRecord&lt;String, Object, Object&gt; map = list.get(<span class="number">0</span>);</span><br><span class="line">                   Map&lt;Object, Object&gt; values = map.getValue();</span><br><span class="line">                   VoucherOrder voucherOrder = <span class="keyword">new</span> VoucherOrder();</span><br><span class="line">                   BeanUtil.fillBeanWithMap(values,voucherOrder,<span class="keyword">true</span>);</span><br><span class="line">                   <span class="comment">//3.如果获取成功，可以下单</span></span><br><span class="line">                   handleVoucherOrder(voucherOrder);</span><br><span class="line">                   <span class="comment">//4 ACK 确认 SACK stream.orders g1 id</span></span><br><span class="line">                   stringRedisTemplate.opsForStream().acknowledge(queueName,<span class="string">&quot;g1&quot;</span>,map.getId());</span><br><span class="line">               &#125;</span><br><span class="line">           &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">               log.error(<span class="string">&quot;处理订单异常!!&quot;</span>,e);</span><br><span class="line">               handlePendingList();</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="comment">//创建订单失败处理流程</span></span><br><span class="line">       <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">handlePendingList</span><span class="params">()</span> </span>&#123;</span><br><span class="line">           <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">               <span class="keyword">try</span> &#123;</span><br><span class="line">                   List&lt;MapRecord&lt;String, Object, Object&gt;&gt; list = stringRedisTemplate.opsForStream().read(</span><br><span class="line">                           Consumer.from(<span class="string">&quot;g1&quot;</span>, <span class="string">&quot;c1&quot;</span>),</span><br><span class="line">                           StreamReadOptions.empty().count(<span class="number">1</span>).block(Duration.ofSeconds(<span class="number">2</span>)),</span><br><span class="line">                           StreamOffset.create(queueName, ReadOffset.from(<span class="string">&quot;0&quot;</span>)));</span><br><span class="line">                   <span class="keyword">if</span> (list==<span class="keyword">null</span>|| list.isEmpty())&#123;</span><br><span class="line">                       <span class="comment">//如果获取失败,说明pending-list没有异常信息,继续下一次循环</span></span><br><span class="line">                       <span class="keyword">break</span>;</span><br><span class="line">                   &#125;</span><br><span class="line">                   MapRecord&lt;String, Object, Object&gt; map = list.get(<span class="number">0</span>);</span><br><span class="line">                   Map&lt;Object, Object&gt; values = map.getValue();</span><br><span class="line">                   VoucherOrder voucherOrder = <span class="keyword">new</span> VoucherOrder();</span><br><span class="line">                   BeanUtil.fillBeanWithMap(values,voucherOrder,<span class="keyword">true</span>);</span><br><span class="line">                   <span class="comment">//3.如果获取成功，可以下单</span></span><br><span class="line">                   handleVoucherOrder(voucherOrder);</span><br><span class="line">                   <span class="comment">//4 ACK 确认 SACK stream.orders g1 id</span></span><br><span class="line">                   stringRedisTemplate.opsForStream().acknowledge(queueName,<span class="string">&quot;g1&quot;</span>,map.getId());</span><br><span class="line">               &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                   log.error(<span class="string">&quot;处理订单异常!!&quot;</span>,e);</span><br><span class="line">                   <span class="keyword">try</span> &#123;</span><br><span class="line">                       Thread.sleep(<span class="number">20</span>);</span><br><span class="line">                   &#125; <span class="keyword">catch</span> (InterruptedException interruptedException) &#123;</span><br><span class="line">                       interruptedException.printStackTrace();</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">handleVoucherOrder</span><span class="params">(VoucherOrder voucherOrder)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">       <span class="comment">//为什么这里 还要做加锁呢 我们redis已经做了资格判断 不是不需要锁吗？</span></span><br><span class="line">       <span class="comment">//这是为了 以防万一 做兜底方案 防止redis宕机</span></span><br><span class="line">       Long userId = voucherOrder.getUserId();</span><br><span class="line">       Long voucherId = voucherOrder.getVoucherId();</span><br><span class="line">       RLock lock = redissonClient.getLock(<span class="string">&quot;lock:order:&quot;</span> + userId);</span><br><span class="line">       <span class="keyword">boolean</span> isLock = lock.tryLock();</span><br><span class="line">       <span class="comment">//判断是否获取锁成功</span></span><br><span class="line">       <span class="keyword">if</span> (!isLock)&#123;</span><br><span class="line">           <span class="comment">//获取锁失败, 返回错误或重试</span></span><br><span class="line">           log.error(<span class="string">&quot;不允许重复下单!&quot;</span>);</span><br><span class="line">           <span class="keyword">return</span>;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">           proxy.createVoucherOrder(voucherOrder);</span><br><span class="line">       &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">           lock.unlock();</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="meta">@Transactional</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span>  <span class="keyword">void</span>  <span class="title">createVoucherOrder</span><span class="params">(VoucherOrder voucherOrder)</span></span>&#123;</span><br><span class="line">       Long userId = voucherOrder.getUserId();</span><br><span class="line">       Long voucherId = voucherOrder.getVoucherId();</span><br><span class="line">       <span class="keyword">int</span> count = query().eq(<span class="string">&quot;user_id&quot;</span>, userId).eq(<span class="string">&quot;voucher_id&quot;</span>, voucherId).count();</span><br><span class="line">           <span class="comment">//5.2 判断是否存在</span></span><br><span class="line">           <span class="keyword">if</span> (count &gt; <span class="number">0</span>) &#123;</span><br><span class="line">               <span class="comment">//用户已经购买</span></span><br><span class="line">               log.error(<span class="string">&quot;用户已经购买!!&quot;</span>);</span><br><span class="line">               <span class="keyword">return</span>;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">//6 扣减库存</span></span><br><span class="line">           <span class="keyword">boolean</span> success = seckillVoucherService.update()</span><br><span class="line">                   .setSql(<span class="string">&quot;stock=stock-1&quot;</span>).eq(<span class="string">&quot;voucher_id&quot;</span>, voucherId).gt(<span class="string">&quot;stock&quot;</span>, <span class="number">0</span>) <span class="comment">//只用判断库存大于0就可以了</span></span><br><span class="line">                   .update();</span><br><span class="line">           <span class="keyword">if</span> (!success) &#123;</span><br><span class="line">               <span class="comment">//扣减失败</span></span><br><span class="line">               log.error(<span class="string">&quot;库存不足!!&quot;</span>);</span><br><span class="line">               <span class="keyword">return</span>;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="keyword">this</span>.save(voucherOrder);</span><br><span class="line">       &#125;</span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> Result <span class="title">seckillVoucher</span><span class="params">(Long voucherId)</span> </span>&#123;</span><br><span class="line">       Long userId = UserHolder.getUser().getId();</span><br><span class="line">       <span class="keyword">long</span> orderId = redisWorker.nextId(<span class="string">&quot;order&quot;</span>);</span><br><span class="line">       <span class="comment">//1 .执行 lua脚本</span></span><br><span class="line">       Long result = stringRedisTemplate.execute(SECKILL_SCRIPT, Collections.emptyList(), voucherId.toString(), userId.toString(),String.valueOf(orderId));</span><br><span class="line">       <span class="comment">//result 0:成功 1:库存不足 2:已经下单</span></span><br><span class="line">       <span class="comment">// 2.判断结果为0</span></span><br><span class="line">       <span class="keyword">int</span> r = result.intValue();</span><br><span class="line">       <span class="keyword">if</span> (r != <span class="number">0</span>)&#123;</span><br><span class="line">           <span class="comment">// 2.1. 不为0代表没有购买资格</span></span><br><span class="line">           <span class="keyword">return</span> Result.fail(r==<span class="number">1</span>?<span class="string">&quot;库存不足！&quot;</span>:<span class="string">&quot;您已经下单成功!&quot;</span>);</span><br><span class="line">       &#125;</span><br><span class="line">       proxy = (IVoucherOrderService)AopContext.currentProxy();</span><br><span class="line">       <span class="keyword">return</span>  Result.ok(orderId);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+	<div>
+	
+		<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+	
+	</div>
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/05/16/Redis%E5%AE%9E%E6%88%98/" rel="next" title="Redis实战1">
+                <i class="fa fa-chevron-left"></i> Redis实战1
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/05/25/Redis%E5%AE%9E%E6%88%983/" rel="prev" title="Redis实战3">
+                Redis实战3 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.png"
+                alt="张浩宇" />
+            
+              <p class="site-author-name" itemprop="name">张浩宇</p>
+              <p class="site-description motion-element" itemprop="description">日积月累,积少成多</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">154</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/zhanghaoyu0724" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">优惠卷秒杀</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80id"><span class="nav-number">1.1.</span> <span class="nav-text">全局唯一id</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E4%BC%98%E6%83%A0%E5%88%B8%E7%A7%92%E6%9D%80%E4%B8%8B%E5%8D%95"><span class="nav-number">1.2.</span> <span class="nav-text">实现优惠券秒杀下单</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B6%85%E5%8D%96%E9%97%AE%E9%A2%98"><span class="nav-number">1.3.</span> <span class="nav-text">超卖问题:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E4%BA%BA%E4%B8%80%E5%8D%95"><span class="nav-number">1.4.</span> <span class="nav-text">一人一单:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">1.5.</span> <span class="nav-text">分布式锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">1.5.1.</span> <span class="nav-text">什么是分布式锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.5.2.</span> <span class="nav-text">分布式锁的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Eredis%E5%AE%9E%E7%8E%B0%E5%88%86%E6%AD%A5%E5%BC%8F%E9%94%81"><span class="nav-number">1.5.3.</span> <span class="nav-text">基于redis实现分步式锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E9%94%81%EF%BC%9A"><span class="nav-number">1.5.4.</span> <span class="nav-text">获取锁：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8A%E6%94%BE%E9%94%81%EF%BC%9A"><span class="nav-number">1.5.5.</span> <span class="nav-text">释放锁：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%9A"><span class="nav-number">1.5.6.</span> <span class="nav-text">存在的问题：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E5%AD%90%E6%80%A7%E9%97%AE%E9%A2%98%EF%BC%9A"><span class="nav-number">1.5.7.</span> <span class="nav-text">原子性问题：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis%E7%9A%84Lua%E8%84%9A%E6%9C%AC"><span class="nav-number">1.5.8.</span> <span class="nav-text">Redis的Lua脚本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8Esetnx%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AD%98%E5%9C%A8%E4%B8%8B%E9%9D%A2%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.5.9.</span> <span class="nav-text">基于setnx实现的分布式锁存在下面的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Redisson"><span class="nav-number">1.5.10.</span> <span class="nav-text">Redisson</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Redisson%E5%85%A5%E9%97%A8%EF%BC%9A"><span class="nav-number">1.5.10.1.</span> <span class="nav-text">Redisson入门：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E8%AF%95%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="nav-number">1.5.10.2.</span> <span class="nav-text">重试问题解决:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%94%81%E9%87%8A%E6%94%BE%E8%B6%85%E6%97%B6%E7%BB%AD%E7%BA%A6%EF%BC%9A"><span class="nav-number">1.5.10.3.</span> <span class="nav-text">锁释放超时续约：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BB%E4%BB%8E%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%EF%BC%9A"><span class="nav-number">1.5.10.4.</span> <span class="nav-text">主从一致性问题：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E4%BC%98%E5%8C%96%E7%A7%92%E6%9D%80%E4%B8%9A%E5%8A%A1"><span class="nav-number">1.6.</span> <span class="nav-text">Redis优化秒杀业务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E5%AE%9E%E7%8E%B0%E5%BC%82%E6%AD%A5%E7%A7%92%E6%9D%80"><span class="nav-number">1.7.</span> <span class="nav-text">Redis消息队列实现异步秒杀</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8EList%E5%AE%9E%E7%8E%B0%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"><span class="nav-number">1.7.0.1.</span> <span class="nav-text">基于List实现消息队列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8EPubSub%E7%9A%84%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"><span class="nav-number">1.7.0.2.</span> <span class="nav-text">基于PubSub的消息队列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8EStream%E7%9A%84%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97"><span class="nav-number">1.7.0.3.</span> <span class="nav-text">基于Stream的消息队列</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2021 &mdash; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Zhang Hao Hu</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">博客全站字数&#58;</span>
+    
+    <span title="博客全站字数">412.5k</span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.json";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
